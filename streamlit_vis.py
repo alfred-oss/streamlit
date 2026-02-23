@@ -1,0 +1,346 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import streamlit as st
+
+import pydeck as pdk
+
+st.set_page_config(page_title="Buy vs Rent Explorer", layout="wide")
+
+
+DATASET_NAMES = [
+    "merged",
+    "merged_by_bed",
+    "df",
+    "own_town_bed",
+    "town_med",
+]
+
+
+@st.cache_data(show_spinner=False)
+def load_any_dataset(base_name: str) -> pd.DataFrame | None:
+    candidates = [
+        Path("data") / f"{base_name}.parquet",
+        Path("data") / f"{base_name}.csv",
+        Path("data") / f"{base_name}.xlsx",
+        Path("data") / f"{base_name}.pkl",
+        Path(f"{base_name}.parquet"),
+        Path(f"{base_name}.csv"),
+        Path(f"{base_name}.xlsx"),
+        Path(f"{base_name}.pkl"),
+    ]
+
+    for path in candidates:
+        if not path.exists():
+            continue
+        if path.suffix == ".parquet":
+            return pd.read_parquet(path)
+        if path.suffix == ".csv":
+            return pd.read_csv(path)
+        if path.suffix == ".xlsx":
+            return pd.read_excel(path)
+        if path.suffix == ".pkl":
+            return pd.read_pickle(path)
+
+    return None
+
+
+@st.cache_data(show_spinner=False)
+def load_all() -> dict[str, pd.DataFrame]:
+    loaded = {}
+    for name in DATASET_NAMES:
+        df = load_any_dataset(name)
+        if df is not None and not df.empty:
+            loaded[name] = df.copy()
+    return loaded
+
+
+def normalize_town(s: pd.Series) -> pd.Series:
+    return (
+        s.astype(str)
+        .str.strip()
+        .str.replace(r"\s+", " ", regex=True)
+        .str.lower()
+    )
+
+
+def extract_zip_from_text(s: pd.Series) -> pd.Series:
+    return s.astype(str).str.extract(r"(\d{5})(?:-\d{4})?", expand=False)
+
+
+def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None = None) -> pd.DataFrame:
+    if ownership_df is None or ownership_df.empty:
+        return pd.DataFrame(columns=["Town", "lat", "lon"])
+
+    town_col = next((c for c in ownership_df.columns if c.lower() == "town"), None)
+    zip_col = next((c for c in ownership_df.columns if c.lower() in {"zip_code", "zip", "zipcode"}), None)
+
+    if town_col is None or zip_col is None:
+        return pd.DataFrame(columns=["Town", "lat", "lon"])
+
+    ref = ownership_df[[town_col, zip_col]].copy()
+    ref.columns = ["Town", "ZIP"]
+    ref["ZIP"] = extract_zip_from_text(ref["ZIP"])
+
+    # Backup: extract ZIP directly from full addresses when lat/lon are missing.
+    for df in [ownership_df, rent_df]:
+        if df is None or df.empty:
+            continue
+        addr_col = next((c for c in df.columns if c.lower() in {"address_norm", "fulladdress", "address"}), None)
+        town_candidate = next((c for c in df.columns if c.lower() == "town"), None)
+        if addr_col is None:
+            continue
+        extra = pd.DataFrame({
+            "Town": df[town_candidate] if town_candidate else "",
+            "ZIP": extract_zip_from_text(df[addr_col]),
+        })
+        ref = pd.concat([ref, extra], ignore_index=True)
+    ref = ref.dropna(subset=["ZIP"])
+    ref["Town"] = ref["Town"].fillna("").astype(str).str.strip()
+
+    if ref.empty:
+        return pd.DataFrame(columns=["Town", "lat", "lon"])
+
+    try:
+        import pgeocode
+
+        nomi = pgeocode.Nominatim("us")
+        coords = nomi.query_postal_code(ref["ZIP"].tolist())[["latitude", "longitude"]]
+        ref = ref.reset_index(drop=True)
+        ref["lat"] = coords["latitude"].values
+        ref["lon"] = coords["longitude"].values
+    except Exception:
+        return pd.DataFrame(columns=["Town", "lat", "lon"])
+
+    ref = ref.dropna(subset=["lat", "lon"])
+    if ref.empty:
+        return pd.DataFrame(columns=["Town", "lat", "lon"])
+
+    ref = ref[ref["Town"] != ""]
+    ref["town_key"] = normalize_town(ref["Town"])
+    agg = ref.groupby("town_key", as_index=False).agg(
+        Town=("Town", "first"),
+        lat=("lat", "median"),
+        lon=("lon", "median"),
+    )
+
+    # Optional online fallback by town string if ZIP-based mapping is incomplete.
+    if not agg.empty:
+        known_keys = set(agg["town_key"])
+        raw_towns = pd.Series(dtype="object")
+        if town_col in ownership_df.columns:
+            raw_towns = pd.concat([raw_towns, ownership_df[town_col]], ignore_index=True)
+        if rent_df is not None:
+            rent_town_col = next((c for c in rent_df.columns if c.lower() == "town"), None)
+            if rent_town_col:
+                raw_towns = pd.concat([raw_towns, rent_df[rent_town_col]], ignore_index=True)
+        missing = (
+            pd.DataFrame({"Town": raw_towns.dropna().astype(str).str.strip().unique()})
+            .query("Town != ''")
+        )
+        missing["town_key"] = normalize_town(missing["Town"])
+        missing = missing[~missing["town_key"].isin(known_keys)]
+
+        if not missing.empty:
+            try:
+                from geopy.extra.rate_limiter import RateLimiter
+                from geopy.geocoders import Nominatim
+
+                geocoder = Nominatim(user_agent="buy-rent-streamlit")
+                geocode = RateLimiter(geocoder.geocode, min_delay_seconds=1)
+                missing["location"] = missing["Town"].apply(lambda x: geocode(f"{x}, Massachusetts, USA"))
+                missing["lat"] = missing["location"].apply(lambda loc: loc.latitude if loc else np.nan)
+                missing["lon"] = missing["location"].apply(lambda loc: loc.longitude if loc else np.nan)
+                missing = missing.dropna(subset=["lat", "lon"])
+                if not missing.empty:
+                    agg = pd.concat(
+                        [agg, missing[["town_key", "Town", "lat", "lon"]]],
+                        ignore_index=True,
+                    )
+            except Exception:
+                pass
+
+    return agg
+
+
+def add_coords(df: pd.DataFrame, town_coord_ref: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+
+    lat_col = next((c for c in out.columns if c.lower() in {"lat", "latitude"}), None)
+    lon_col = next((c for c in out.columns if c.lower() in {"lon", "lng", "longitude"}), None)
+
+    if lat_col and lon_col:
+        out["lat"] = pd.to_numeric(out[lat_col], errors="coerce")
+        out["lon"] = pd.to_numeric(out[lon_col], errors="coerce")
+        return out
+
+    town_col = next((c for c in out.columns if c.lower() == "town"), None)
+    if town_col and not town_coord_ref.empty:
+        out["town_key"] = normalize_town(out[town_col])
+        out = out.merge(town_coord_ref[["town_key", "lat", "lon"]], on="town_key", how="left")
+
+    return out
+
+
+def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str):
+    map_df = df.dropna(subset=["lat", "lon", value_col]).copy()
+    if map_df.empty:
+        st.warning("No coordinates available for this map. Add ZIP codes in addresses or a ZIP column to infer locations.")
+        return
+
+    q = np.nanquantile(map_df[value_col], [0.1, 0.5, 0.9])
+    lo, mid, hi = float(q[0]), float(q[1]), float(q[2])
+
+    def color_scale(v: float):
+        if v >= hi:
+            return [16, 185, 129, 180]
+        if v >= mid:
+            return [132, 204, 22, 170]
+        if v >= lo:
+            return [245, 158, 11, 170]
+        return [220, 38, 38, 180]
+
+    map_df["color"] = map_df[value_col].apply(color_scale)
+    radius_base = 5000 if map_df[label_col].nunique() < 200 else 2500
+
+    st.subheader(title)
+    if pdk is None:
+        st.warning(
+            "pydeck is not installed in this Python environment. "
+            "Install it with `pip install pydeck` for interactive maps. "
+            "Showing coordinate preview table instead."
+        )
+        preview_cols = [c for c in [label_col, value_col, "lat", "lon"] if c in map_df.columns]
+        st.dataframe(
+            map_df[preview_cols].sort_values(value_col, ascending=False),
+            use_container_width=True,
+            height=350,
+        )
+        return
+
+    layer = pdk.Layer(
+        "ScatterplotLayer",
+        map_df,
+        get_position="[lon, lat]",
+        get_fill_color="color",
+        get_radius=radius_base,
+        pickable=True,
+        stroked=True,
+        filled=True,
+        radius_min_pixels=4,
+        radius_max_pixels=25,
+        line_width_min_pixels=1,
+    )
+
+    view_state = pdk.ViewState(
+        latitude=float(map_df["lat"].median()),
+        longitude=float(map_df["lon"].median()),
+        zoom=7,
+        pitch=0,
+    )
+
+    tooltip = {
+        "html": f"<b>{{{label_col}}}</b><br/>{value_col}: {{{value_col}}}",
+        "style": {"backgroundColor": "#111827", "color": "white"},
+    }
+    st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip=tooltip))
+
+
+def choose_column(df: pd.DataFrame, options: list[str]) -> str | None:
+    low_to_original = {c.lower(): c for c in df.columns}
+    for opt in options:
+        if opt.lower() in low_to_original:
+            return low_to_original[opt.lower()]
+    return None
+
+def show_table(df: pd.DataFrame, *, sort_by: str | None = None, ascending: bool = False, height: int = 500):
+    out = df.copy()
+    if sort_by and sort_by in out.columns:
+        out = out.sort_values(sort_by, ascending=ascending)
+
+    out = out.reset_index(drop=True)
+
+    # hide_index работает в новых версиях streamlit
+    try:
+        st.dataframe(out, use_container_width=True, height=height, hide_index=True)
+    except TypeError:
+        st.dataframe(out, use_container_width=True, height=height)
+
+st.title("🏠 Buy vs Rent Interactive Explorer")
+loaded = load_all()
+
+if not loaded:
+    st.error(
+        "No datasets were found. Put csv/parquet/xlsx/pkl files into `data/` or project root using names: "
+        + ", ".join(DATASET_NAMES)
+    )
+    st.stop()
+
+st.caption("Main metric: gap = median_rent_per_bed - median_ownership_per_bed. Positive gap means buying is cheaper than renting per bedroom.")
+
+ownership_base = loaded.get("df")
+town_coord_ref = infer_town_coords(ownership_base, None) if ownership_base is not None else pd.DataFrame()
+
+# --- Section 1: main heatmap ---
+st.header("1) Heatmap: where buying is better than renting")
+main_source_name = st.selectbox(
+    "Heatmap source",
+    options=[n for n in ["merged", "merged_by_bed"] if n in loaded],
+)
+main_df = loaded[main_source_name].copy()
+
+if "Bdrs" in main_df.columns:
+    bdrs_values = sorted(main_df["Bdrs"].dropna().unique().tolist())
+    selected_bdrs = st.multiselect("Bedroom filter (Bdrs)", bdrs_values, default=bdrs_values)
+    main_df = main_df[main_df["Bdrs"].isin(selected_bdrs)]
+
+main_df = add_coords(main_df, town_coord_ref)
+
+gap_col = choose_column(main_df, ["gap"])
+town_col = choose_column(main_df, ["Town"])
+if not gap_col or not town_col:
+    st.error("merged/merged_by_bed must include Town and gap columns.")
+else:
+    c1, c2 = st.columns([2, 1])
+    # with c1:
+    #     make_map(main_df, gap_col, town_col, "Town gap map")
+    with c2:
+        st.subheader("Town table")
+        table_cols = [town_col]
+        for col in ["Bdrs", "median_ownership_per_bed", "median_rent_per_bed", "gap", "own_listings", "rental_listings"]:
+            real_col = choose_column(main_df, [col])
+            if real_col:
+                table_cols.append(real_col)
+        table_df = main_df[table_cols]
+        show_table(table_df, sort_by=gap_col, ascending=False, height=500)
+
+# --- Section 2: ownership map ---
+st.header("2) Ownership map + address table")
+own_df = loaded.get("df")
+if own_df is not None:
+    own_df = add_coords(own_df, town_coord_ref)
+    own_val_col = choose_column(own_df, ["Monthly_ownership_per_bed", "monthly_ownership_per_bed"])
+    own_addr_col = choose_column(own_df, ["Address_norm", "FullAddress", "address", "Address"])
+
+    if own_val_col and own_addr_col:
+        c1, c2 = st.columns([2, 1])
+        # with c1:
+        #     make_map(own_df, own_val_col, own_addr_col, "Ownership per bed (address-level)")
+        with c2:
+            st.subheader("Ownership table")
+            cols = [c for c in [own_addr_col, choose_column(own_df, ["Town"]), choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"]), own_val_col] if c]
+            table_df = own_df[cols]
+            show_table(table_df, sort_by=own_val_col, ascending=False, height=500)
+    else:
+        st.info("df must include address and monthly ownership per bed columns.")
+
+st.divider()
+st.markdown(
+    """
+**Heatmap color logic (gap):**
+- Green: high positive gap (buying cheaper than renting per bedroom)
+- Yellow/orange: around neutral range
+- Red: strongly negative gap (renting cheaper than owning)
+"""
+)
