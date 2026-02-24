@@ -69,6 +69,62 @@ def extract_zip_from_text(s: pd.Series) -> pd.Series:
     return s.astype(str).str.extract(r"(\d{5})(?:-\d{4})?", expand=False)
 
 
+def build_full_address(df: pd.DataFrame) -> pd.Series:
+    addr_col = next((c for c in df.columns if c.lower() in {"address_norm", "fulladdress", "address"}), None)
+    town_col = next((c for c in df.columns if c.lower() == "town"), None)
+    zip_col = next((c for c in df.columns if c.lower() in {"zip_code", "zip", "zipcode"}), None)
+
+    if addr_col is None and town_col is None and zip_col is None:
+        return pd.Series(index=df.index, dtype="object")
+
+    address = df[addr_col].fillna("").astype(str).str.strip() if addr_col else pd.Series("", index=df.index)
+    town = df[town_col].fillna("").astype(str).str.strip() if town_col else pd.Series("", index=df.index)
+
+    if zip_col:
+        zip_code = extract_zip_from_text(df[zip_col]).fillna("").astype(str).str.strip()
+    elif addr_col:
+        zip_code = extract_zip_from_text(df[addr_col]).fillna("").astype(str).str.strip()
+    else:
+        zip_code = pd.Series("", index=df.index)
+
+    combined = pd.concat(
+        [address, town, zip_code, pd.Series("USA", index=df.index)],
+        axis=1,
+    )
+
+    return combined.apply(
+        lambda row: ", ".join([part for part in row.tolist() if part and str(part).strip()]),
+        axis=1,
+    )
+
+
+@st.cache_data(show_spinner=False)
+def geocode_full_addresses(full_addresses: tuple[str, ...]) -> pd.DataFrame:
+    if not full_addresses:
+        return pd.DataFrame(columns=["full_address", "lat", "lon"])
+
+    try:
+        from geopy.extra.rate_limiter import RateLimiter
+        from geopy.geocoders import Nominatim
+
+        geocoder = Nominatim(user_agent="buy-rent-streamlit")
+        geocode = RateLimiter(geocoder.geocode, min_delay_seconds=1)
+
+        rows = []
+        for full_address in full_addresses:
+            loc = geocode(full_address)
+            rows.append({
+                "full_address": full_address,
+                "lat": loc.latitude if loc else np.nan,
+                "lon": loc.longitude if loc else np.nan,
+            })
+
+        out = pd.DataFrame(rows).dropna(subset=["lat", "lon"])
+        return out.drop_duplicates(subset=["full_address"])
+    except Exception:
+        return pd.DataFrame(columns=["full_address", "lat", "lon"])
+
+
 def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None = None) -> pd.DataFrame:
     if ownership_df is None or ownership_df.empty:
         return pd.DataFrame(columns=["Town", "lat", "lon"])
@@ -76,12 +132,15 @@ def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None =
     town_col = next((c for c in ownership_df.columns if c.lower() == "town"), None)
     zip_col = next((c for c in ownership_df.columns if c.lower() in {"zip_code", "zip", "zipcode"}), None)
 
-    if town_col is None or zip_col is None:
+    if town_col is None:
         return pd.DataFrame(columns=["Town", "lat", "lon"])
 
-    ref = ownership_df[[town_col, zip_col]].copy()
-    ref.columns = ["Town", "ZIP"]
-    ref["ZIP"] = extract_zip_from_text(ref["ZIP"])
+    if zip_col is not None:
+        ref = ownership_df[[town_col, zip_col]].copy()
+        ref.columns = ["Town", "ZIP"]
+        ref["ZIP"] = extract_zip_from_text(ref["ZIP"])
+    else:
+        ref = pd.DataFrame({"Town": ownership_df[town_col], "ZIP": pd.NA})
 
     # Backup: extract ZIP directly from full addresses when lat/lon are missing.
     for df in [ownership_df, rent_df]:
@@ -179,8 +238,31 @@ def add_coords(df: pd.DataFrame, town_coord_ref: pd.DataFrame) -> pd.DataFrame:
     if town_col and not town_coord_ref.empty:
         out["town_key"] = normalize_town(out[town_col])
         out = out.merge(town_coord_ref[["town_key", "lat", "lon"]], on="town_key", how="left")
+    else:
+        out["lat"] = np.nan
+        out["lon"] = np.nan
 
-    return out
+    missing_mask = out["lat"].isna() | out["lon"].isna()
+    if not missing_mask.any():
+        return out
+
+    full_address = build_full_address(out)
+    full_address = full_address.where(full_address.str.len() > 0, pd.NA)
+    out["full_address"] = full_address
+
+    to_geocode = tuple(sorted(out.loc[missing_mask & out["full_address"].notna(), "full_address"].dropna().astype(str).unique()))
+    if not to_geocode:
+        return out.drop(columns=["full_address"], errors="ignore")
+
+    geocoded = geocode_full_addresses(to_geocode)
+    if geocoded.empty:
+        return out.drop(columns=["full_address"], errors="ignore")
+
+    out = out.merge(geocoded, on="full_address", how="left", suffixes=("", "_geo"))
+    out["lat"] = out["lat"].fillna(out["lat_geo"])
+    out["lon"] = out["lon"].fillna(out["lon_geo"])
+
+    return out.drop(columns=["full_address", "lat_geo", "lon_geo"], errors="ignore")
 
 
 def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str):
@@ -303,8 +385,8 @@ if not gap_col or not town_col:
     st.error("merged/merged_by_bed must include Town and gap columns.")
 else:
     c1, c2 = st.columns([2, 1])
-    # with c1:
-    #     make_map(main_df, gap_col, town_col, "Town gap map")
+    with c1:
+        make_map(main_df, gap_col, town_col, "Town gap map")
     with c2:
         st.subheader("Town table")
         table_cols = [town_col]
@@ -325,8 +407,8 @@ if own_df is not None:
 
     if own_val_col and own_addr_col:
         c1, c2 = st.columns([2, 1])
-        # with c1:
-        #     make_map(own_df, own_val_col, own_addr_col, "Ownership per bed (address-level)")
+        with c1:
+            make_map(own_df, own_val_col, own_addr_col, "Ownership per bed (address-level)")
         with c2:
             st.subheader("Ownership table")
             cols = [c for c in [own_addr_col, choose_column(own_df, ["Town"]), choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"]), own_val_col] if c]
