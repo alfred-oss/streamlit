@@ -232,15 +232,17 @@ def add_coords(df: pd.DataFrame, town_coord_ref: pd.DataFrame) -> pd.DataFrame:
     if lat_col and lon_col:
         out["lat"] = pd.to_numeric(out[lat_col], errors="coerce")
         out["lon"] = pd.to_numeric(out[lon_col], errors="coerce")
-        return out
+    else:
+        out["lat"] = np.nan
+        out["lon"] = np.nan
 
     town_col = next((c for c in out.columns if c.lower() == "town"), None)
     if town_col and not town_coord_ref.empty:
         out["town_key"] = normalize_town(out[town_col])
-        out = out.merge(town_coord_ref[["town_key", "lat", "lon"]], on="town_key", how="left")
-    else:
-        out["lat"] = np.nan
-        out["lon"] = np.nan
+        out = out.merge(town_coord_ref[["town_key", "lat", "lon"]], on="town_key", how="left", suffixes=("", "_town"))
+        out["lat"] = out["lat"].fillna(out["lat_town"])
+        out["lon"] = out["lon"].fillna(out["lon_town"])
+        out = out.drop(columns=["lat_town", "lon_town"], errors="ignore")
 
     missing_mask = out["lat"].isna() | out["lon"].isna()
     if not missing_mask.any():
