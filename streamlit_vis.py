@@ -158,31 +158,27 @@ def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None =
     ref = ref.dropna(subset=["ZIP"])
     ref["Town"] = ref["Town"].fillna("").astype(str).str.strip()
 
-    if ref.empty:
-        return pd.DataFrame(columns=["Town", "lat", "lon"])
+    agg = pd.DataFrame(columns=["town_key", "Town", "lat", "lon"])
+    if not ref.empty:
+        try:
+            import pgeocode
 
-    try:
-        import pgeocode
-
-        nomi = pgeocode.Nominatim("us")
-        coords = nomi.query_postal_code(ref["ZIP"].tolist())[["latitude", "longitude"]]
-        ref = ref.reset_index(drop=True)
-        ref["lat"] = coords["latitude"].values
-        ref["lon"] = coords["longitude"].values
-    except Exception:
-        return pd.DataFrame(columns=["Town", "lat", "lon"])
-
-    ref = ref.dropna(subset=["lat", "lon"])
-    if ref.empty:
-        return pd.DataFrame(columns=["Town", "lat", "lon"])
-
-    ref = ref[ref["Town"] != ""]
-    ref["town_key"] = normalize_town(ref["Town"])
-    agg = ref.groupby("town_key", as_index=False).agg(
-        Town=("Town", "first"),
-        lat=("lat", "median"),
-        lon=("lon", "median"),
-    )
+            nomi = pgeocode.Nominatim("us")
+            coords = nomi.query_postal_code(ref["ZIP"].tolist())[["latitude", "longitude"]]
+            ref = ref.reset_index(drop=True)
+            ref["lat"] = coords["latitude"].values
+            ref["lon"] = coords["longitude"].values
+            ref = ref.dropna(subset=["lat", "lon"])
+            if not ref.empty:
+                ref = ref[ref["Town"] != ""]
+                ref["town_key"] = normalize_town(ref["Town"])
+                agg = ref.groupby("town_key", as_index=False).agg(
+                    Town=("Town", "first"),
+                    lat=("lat", "median"),
+                    lon=("lon", "median"),
+                )
+        except Exception:
+            pass
 
     # Online fallback by town string (works even if ZIP-based mapping is empty).
     known_keys = set(agg["town_key"]) if not agg.empty else set()
@@ -393,7 +389,7 @@ else:
     with c2:
         st.subheader("Town table")
         table_cols = [town_col]
-        for col in ["Bdrs", "median_ownership_per_bed", "median_rent_per_bed", "gap", "own_listings", "rental_listings"]:
+        for col in ["Bdrs", "median_ownership_per_bed", "median_rent_per_bed", "gap"]:
             real_col = choose_column(main_df, [col])
             if real_col:
                 table_cols.append(real_col)
@@ -407,14 +403,22 @@ if own_df is not None:
     own_df = add_coords(own_df, town_coord_ref)
     own_val_col = choose_column(own_df, ["Monthly_ownership_per_bed", "monthly_ownership_per_bed"])
     own_addr_col = choose_column(own_df, ["Address_norm", "FullAddress", "address", "Address"])
+    own_town_col = choose_column(own_df, ["Town"])
+    own_bdrs_col = choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"])
 
-    if own_val_col and own_addr_col:
+    if own_val_col and own_addr_col and own_town_col:
+        own_df["map_label"] = (
+            own_df[own_addr_col].fillna("").astype(str).str.strip()
+            + ", "
+            + own_df[own_town_col].fillna("").astype(str).str.strip()
+            + ", USA"
+        )
         c1, c2 = st.columns([2, 1])
         with c1:
-            make_map(own_df, own_val_col, own_addr_col, "Ownership per bed (address-level)")
+            make_map(own_df, own_val_col, "map_label", "Ownership per bed (address-level)")
         with c2:
             st.subheader("Ownership table")
-            cols = [c for c in [own_addr_col, choose_column(own_df, ["Town"]), choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"]), own_val_col] if c]
+            cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_val_col] if c]
             table_df = own_df[cols]
             show_table(table_df, sort_by=own_val_col, ascending=False, height=500)
     else:
