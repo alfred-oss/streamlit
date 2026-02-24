@@ -184,41 +184,41 @@ def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None =
         lon=("lon", "median"),
     )
 
-    # Optional online fallback by town string if ZIP-based mapping is incomplete.
-    if not agg.empty:
-        known_keys = set(agg["town_key"])
-        raw_towns = pd.Series(dtype="object")
-        if town_col in ownership_df.columns:
-            raw_towns = pd.concat([raw_towns, ownership_df[town_col]], ignore_index=True)
-        if rent_df is not None:
-            rent_town_col = next((c for c in rent_df.columns if c.lower() == "town"), None)
-            if rent_town_col:
-                raw_towns = pd.concat([raw_towns, rent_df[rent_town_col]], ignore_index=True)
-        missing = (
-            pd.DataFrame({"Town": raw_towns.dropna().astype(str).str.strip().unique()})
-            .query("Town != ''")
-        )
-        missing["town_key"] = normalize_town(missing["Town"])
-        missing = missing[~missing["town_key"].isin(known_keys)]
+    # Online fallback by town string (works even if ZIP-based mapping is empty).
+    known_keys = set(agg["town_key"]) if not agg.empty else set()
+    raw_towns = pd.Series(dtype="object")
+    if town_col in ownership_df.columns:
+        raw_towns = pd.concat([raw_towns, ownership_df[town_col]], ignore_index=True)
+    if rent_df is not None:
+        rent_town_col = next((c for c in rent_df.columns if c.lower() == "town"), None)
+        if rent_town_col:
+            raw_towns = pd.concat([raw_towns, rent_df[rent_town_col]], ignore_index=True)
 
-        if not missing.empty:
-            try:
-                from geopy.extra.rate_limiter import RateLimiter
-                from geopy.geocoders import Nominatim
+    missing = (
+        pd.DataFrame({"Town": raw_towns.dropna().astype(str).str.strip().unique()})
+        .query("Town != ''")
+    )
+    missing["town_key"] = normalize_town(missing["Town"])
+    missing = missing[~missing["town_key"].isin(known_keys)]
 
-                geocoder = Nominatim(user_agent="buy-rent-streamlit")
-                geocode = RateLimiter(geocoder.geocode, min_delay_seconds=1)
-                missing["location"] = missing["Town"].apply(lambda x: geocode(f"{x}, Massachusetts, USA"))
-                missing["lat"] = missing["location"].apply(lambda loc: loc.latitude if loc else np.nan)
-                missing["lon"] = missing["location"].apply(lambda loc: loc.longitude if loc else np.nan)
-                missing = missing.dropna(subset=["lat", "lon"])
-                if not missing.empty:
-                    agg = pd.concat(
-                        [agg, missing[["town_key", "Town", "lat", "lon"]]],
-                        ignore_index=True,
-                    )
-            except Exception:
-                pass
+    if not missing.empty:
+        try:
+            from geopy.extra.rate_limiter import RateLimiter
+            from geopy.geocoders import Nominatim
+
+            geocoder = Nominatim(user_agent="buy-rent-streamlit")
+            geocode = RateLimiter(geocoder.geocode, min_delay_seconds=1)
+            missing["location"] = missing["Town"].apply(lambda x: geocode(f"{x}, USA"))
+            missing["lat"] = missing["location"].apply(lambda loc: loc.latitude if loc else np.nan)
+            missing["lon"] = missing["location"].apply(lambda loc: loc.longitude if loc else np.nan)
+            missing = missing.dropna(subset=["lat", "lon"])
+            if not missing.empty:
+                agg = pd.concat(
+                    [agg, missing[["town_key", "Town", "lat", "lon"]]],
+                    ignore_index=True,
+                )
+        except Exception:
+            pass
 
     return agg
 
@@ -232,15 +232,17 @@ def add_coords(df: pd.DataFrame, town_coord_ref: pd.DataFrame) -> pd.DataFrame:
     if lat_col and lon_col:
         out["lat"] = pd.to_numeric(out[lat_col], errors="coerce")
         out["lon"] = pd.to_numeric(out[lon_col], errors="coerce")
-        return out
+    else:
+        out["lat"] = np.nan
+        out["lon"] = np.nan
 
     town_col = next((c for c in out.columns if c.lower() == "town"), None)
     if town_col and not town_coord_ref.empty:
         out["town_key"] = normalize_town(out[town_col])
-        out = out.merge(town_coord_ref[["town_key", "lat", "lon"]], on="town_key", how="left")
-    else:
-        out["lat"] = np.nan
-        out["lon"] = np.nan
+        out = out.merge(town_coord_ref[["town_key", "lat", "lon"]], on="town_key", how="left", suffixes=("", "_town"))
+        out["lat"] = out["lat"].fillna(out["lat_town"])
+        out["lon"] = out["lon"].fillna(out["lon_town"])
+        out = out.drop(columns=["lat_town", "lon_town"], errors="ignore")
 
     missing_mask = out["lat"].isna() | out["lon"].isna()
     if not missing_mask.any():
@@ -362,7 +364,7 @@ if not loaded:
 st.caption("Main metric: gap = median_rent_per_bed - median_ownership_per_bed. Positive gap means buying is cheaper than renting per bedroom.")
 
 ownership_base = loaded.get("df")
-town_coord_ref = infer_town_coords(ownership_base, None) if ownership_base is not None else pd.DataFrame()
+town_coord_ref = infer_town_coords(ownership_base, loaded.get("merged")) if ownership_base is not None else pd.DataFrame()
 
 # --- Section 1: main heatmap ---
 st.header("1) Heatmap: where buying is better than renting")
