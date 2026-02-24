@@ -364,7 +364,8 @@ if not loaded:
 st.caption("Main metric: gap = median_rent_per_bed - median_ownership_per_bed. Positive gap means buying is cheaper than renting per bedroom.")
 
 ownership_base = loaded.get("df")
-town_coord_ref = infer_town_coords(ownership_base, loaded.get("merged")) if ownership_base is not None else pd.DataFrame()
+coords_seed_df = ownership_base if ownership_base is not None else loaded.get("merged")
+town_coord_ref = infer_town_coords(coords_seed_df, loaded.get("merged")) if coords_seed_df is not None else pd.DataFrame()
 
 # --- Section 1: main heatmap ---
 st.header("1) Heatmap: where buying is better than renting")
