@@ -273,23 +273,33 @@ def add_coords(df: pd.DataFrame, town_coord_ref: pd.DataFrame) -> pd.DataFrame:
     return out.drop(columns=["full_address", "lat_geo", "lon_geo"], errors="ignore")
 
 
-def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str):
+def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fixed_gap_colors: bool = False):
     map_df = df.dropna(subset=["lat", "lon", value_col]).copy()
     if map_df.empty:
         st.warning("No coordinates available for this map. Add ZIP codes in addresses or a ZIP column to infer locations.")
         return
 
-    q = np.nanquantile(map_df[value_col], [0.1, 0.5, 0.9])
-    lo, mid, hi = float(q[0]), float(q[1]), float(q[2])
+    if fixed_gap_colors:
+        def color_scale(v: float):
+            if v > 0:
+                return [16, 185, 129, 180]  # green
+            if v >= -200:
+                return [132, 204, 22, 180]  # light green
+            if v >= -400:
+                return [245, 158, 11, 180]  # orange
+            return [220, 38, 38, 180]  # red
+    else:
+        q = np.nanquantile(map_df[value_col], [0.1, 0.5, 0.9])
+        lo, mid, hi = float(q[0]), float(q[1]), float(q[2])
 
-    def color_scale(v: float):
-        if v >= hi:
-            return [16, 185, 129, 180]
-        if v >= mid:
-            return [132, 204, 22, 170]
-        if v >= lo:
-            return [245, 158, 11, 170]
-        return [220, 38, 38, 180]
+        def color_scale(v: float):
+            if v >= hi:
+                return [16, 185, 129, 180]
+            if v >= mid:
+                return [132, 204, 22, 170]
+            if v >= lo:
+                return [245, 158, 11, 170]
+            return [220, 38, 38, 180]
 
     map_df["color"] = map_df[value_col].apply(color_scale)
     radius_base = 5000 if map_df[label_col].nunique() < 200 else 2500
@@ -395,7 +405,10 @@ if not gap_col or not town_col:
 else:
     c1, c2 = st.columns([2, 1])
     with c1:
-        make_map(main_df, gap_col, town_col, "Town gap map")
+        total_points = len(main_df)
+        mapped_points = int(main_df[["lat", "lon"]].notna().all(axis=1).sum())
+        st.caption(f"Mapped towns: {mapped_points}/{total_points}")
+        make_map(main_df, gap_col, town_col, "Town gap map", fixed_gap_colors=True)
     with c2:
         st.subheader("Town table")
         table_cols = [town_col]
@@ -438,8 +451,9 @@ st.divider()
 st.markdown(
     """
 **Heatmap color logic (gap):**
-- Green: high positive gap (buying cheaper than renting per bedroom)
-- Yellow/orange: around neutral range
-- Red: strongly negative gap (renting cheaper than owning)
+- Green: gap > 0
+- Light green: gap from -200 to 0
+- Orange: gap from -400 to -200
+- Red: gap < -400
 """
 )
