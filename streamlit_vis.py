@@ -1,4 +1,7 @@
 from pathlib import Path
+import json
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 import numpy as np
 import pandas as pd
@@ -66,7 +69,12 @@ def normalize_town(s: pd.Series) -> pd.Series:
 
 
 def extract_zip_from_text(s: pd.Series) -> pd.Series:
-    return s.astype(str).str.extract(r"(\d{5})(?:-\d{4})?", expand=False)
+    raw = (
+        s.astype(str)
+        .str.replace(r"\.0$", "", regex=True)
+        .str.extract(r"(\d{4,5})(?:-\d{4})?", expand=False)
+    )
+    return raw.where(raw.isna(), raw.str.zfill(5))
 
 
 def build_full_address(df: pd.DataFrame) -> pd.Series:
@@ -99,30 +107,39 @@ def build_full_address(df: pd.DataFrame) -> pd.Series:
 
 
 @st.cache_data(show_spinner=False)
+def geocode_queries(queries: tuple[str, ...]) -> pd.DataFrame:
+    if not queries:
+        return pd.DataFrame(columns=["query", "lat", "lon"])
+
+    rows = []
+    for query in queries:
+        lat = np.nan
+        lon = np.nan
+        try:
+            params = urlencode({"q": query, "format": "json", "limit": 1})
+            req = Request(
+                f"https://nominatim.openstreetmap.org/search?{params}",
+                headers={"User-Agent": "buy-rent-streamlit/1.0"},
+            )
+            with urlopen(req, timeout=12) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            if data:
+                lat = float(data[0].get("lat"))
+                lon = float(data[0].get("lon"))
+        except Exception:
+            pass
+        rows.append({"query": query, "lat": lat, "lon": lon})
+
+    return pd.DataFrame(rows).dropna(subset=["lat", "lon"]).drop_duplicates(subset=["query"])
+
+
+@st.cache_data(show_spinner=False)
 def geocode_full_addresses(full_addresses: tuple[str, ...]) -> pd.DataFrame:
-    if not full_addresses:
+    geocoded = geocode_queries(full_addresses)
+    if geocoded.empty:
         return pd.DataFrame(columns=["full_address", "lat", "lon"])
 
-    try:
-        from geopy.extra.rate_limiter import RateLimiter
-        from geopy.geocoders import Nominatim
-
-        geocoder = Nominatim(user_agent="buy-rent-streamlit")
-        geocode = RateLimiter(geocoder.geocode, min_delay_seconds=1)
-
-        rows = []
-        for full_address in full_addresses:
-            loc = geocode(full_address)
-            rows.append({
-                "full_address": full_address,
-                "lat": loc.latitude if loc else np.nan,
-                "lon": loc.longitude if loc else np.nan,
-            })
-
-        out = pd.DataFrame(rows).dropna(subset=["lat", "lon"])
-        return out.drop_duplicates(subset=["full_address"])
-    except Exception:
-        return pd.DataFrame(columns=["full_address", "lat", "lon"])
+    return geocoded.rename(columns={"query": "full_address"})[["full_address", "lat", "lon"]]
 
 
 def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None = None) -> pd.DataFrame:
@@ -198,23 +215,16 @@ def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None =
     missing = missing[~missing["town_key"].isin(known_keys)]
 
     if not missing.empty:
-        try:
-            from geopy.extra.rate_limiter import RateLimiter
-            from geopy.geocoders import Nominatim
-
-            geocoder = Nominatim(user_agent="buy-rent-streamlit")
-            geocode = RateLimiter(geocoder.geocode, min_delay_seconds=1)
-            missing["location"] = missing["Town"].apply(lambda x: geocode(f"{x}, USA"))
-            missing["lat"] = missing["location"].apply(lambda loc: loc.latitude if loc else np.nan)
-            missing["lon"] = missing["location"].apply(lambda loc: loc.longitude if loc else np.nan)
+        missing["query"] = missing["Town"].astype(str).str.strip() + ", USA"
+        geocoded = geocode_queries(tuple(sorted(missing["query"].dropna().unique())))
+        if not geocoded.empty:
+            missing = missing.merge(geocoded, on="query", how="left")
             missing = missing.dropna(subset=["lat", "lon"])
             if not missing.empty:
                 agg = pd.concat(
                     [agg, missing[["town_key", "Town", "lat", "lon"]]],
                     ignore_index=True,
                 )
-        except Exception:
-            pass
 
     return agg
 
