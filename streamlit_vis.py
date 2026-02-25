@@ -159,19 +159,29 @@ def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None =
     else:
         ref = pd.DataFrame({"Town": ownership_df[town_col], "ZIP": pd.NA})
 
-    # Backup: extract ZIP directly from full addresses when lat/lon are missing.
+    # Backup: add ZIP from each dataset directly (if present), then from full addresses.
     for df in [ownership_df, rent_df]:
         if df is None or df.empty:
             continue
-        addr_col = next((c for c in df.columns if c.lower() in {"address_norm", "fulladdress", "address"}), None)
+
         town_candidate = next((c for c in df.columns if c.lower() == "town"), None)
+        zip_candidate = next((c for c in df.columns if c.lower() in {"zip_code", "zip", "zipcode"}), None)
+        if zip_candidate is not None:
+            extra_zip = pd.DataFrame({
+                "Town": df[town_candidate] if town_candidate else "",
+                "ZIP": extract_zip_from_text(df[zip_candidate]),
+            })
+            ref = pd.concat([ref, extra_zip], ignore_index=True)
+
+        addr_col = next((c for c in df.columns if c.lower() in {"address_norm", "fulladdress", "address"}), None)
         if addr_col is None:
             continue
-        extra = pd.DataFrame({
+
+        extra_addr = pd.DataFrame({
             "Town": df[town_candidate] if town_candidate else "",
             "ZIP": extract_zip_from_text(df[addr_col]),
         })
-        ref = pd.concat([ref, extra], ignore_index=True)
+        ref = pd.concat([ref, extra_addr], ignore_index=True)
     ref = ref.dropna(subset=["ZIP"])
     ref["Town"] = ref["Town"].fillna("").astype(str).str.strip()
 
