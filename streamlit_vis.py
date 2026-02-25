@@ -264,6 +264,31 @@ def add_coords(df: pd.DataFrame, town_coord_ref: pd.DataFrame) -> pd.DataFrame:
     if not missing_mask.any():
         return out
 
+    # ZIP fallback for unresolved rows (faster/more stable than full-address geocoding).
+    zip_col = next((c for c in out.columns if c.lower() in {"zip_code", "zip", "zipcode"}), None)
+    if zip_col is not None:
+        zip_vals = extract_zip_from_text(out[zip_col])
+        rows_need_zip = missing_mask & zip_vals.notna()
+        if rows_need_zip.any():
+            try:
+                import pgeocode
+
+                nomi = pgeocode.Nominatim("us")
+                unique_zips = tuple(sorted(zip_vals[rows_need_zip].dropna().astype(str).unique()))
+                zip_coords = nomi.query_postal_code(list(unique_zips))[["postal_code", "latitude", "longitude"]]
+                zip_coords = zip_coords.rename(columns={"postal_code": "ZIP", "latitude": "lat_zip", "longitude": "lon_zip"})
+                out["ZIP"] = zip_vals
+                out = out.merge(zip_coords, on="ZIP", how="left")
+                out["lat"] = out["lat"].fillna(out["lat_zip"])
+                out["lon"] = out["lon"].fillna(out["lon_zip"])
+                out = out.drop(columns=["ZIP", "lat_zip", "lon_zip"], errors="ignore")
+            except Exception:
+                pass
+
+    missing_mask = out["lat"].isna() | out["lon"].isna()
+    if not missing_mask.any():
+        return out
+
     full_address = build_full_address(out)
     full_address = full_address.where(full_address.str.len() > 0, pd.NA)
     out["full_address"] = full_address
@@ -448,6 +473,9 @@ if own_df is not None:
         )
         c1, c2 = st.columns([2, 1])
         with c1:
+            total_points = len(own_df)
+            mapped_points = int(own_df[["lat", "lon"]].notna().all(axis=1).sum())
+            st.caption(f"Mapped towns: {mapped_points}/{total_points}")
             make_map(own_df, own_val_col, "map_label", "Ownership per bed (address-level)")
         with c2:
             st.subheader("Ownership table")
