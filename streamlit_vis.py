@@ -474,7 +474,7 @@ else:
 
     st.markdown(
         """
-**Heatmap color logic (gap):**
+**Heatmap color logic (Difference):**
 - Green: gap > 0
 - Light green: gap from -200 to 0
 - Orange: gap from -400 to -200
@@ -522,3 +522,4 @@ if own_df is not None:
         st.info("df must include address and monthly ownership per bed columns.")
 
 st.divider()
+
