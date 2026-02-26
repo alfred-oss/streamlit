@@ -499,6 +499,16 @@ if own_df is not None:
     own_town_col = choose_column(own_df, ["Town"])
     own_bdrs_col = choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"])
 
+    if own_town_col:
+        town_values = sorted(own_df[own_town_col].dropna().astype(str).str.strip().unique().tolist())
+        selected_towns = st.multiselect("Ownership town filter", town_values, default=town_values)
+        own_df = own_df[own_df[own_town_col].fillna("").astype(str).str.strip().isin(selected_towns)]
+
+    if own_bdrs_col:
+        bdrs_values = sorted(own_df[own_bdrs_col].dropna().unique().tolist())
+        selected_bdrs = st.multiselect("Ownership bedroom filter", bdrs_values, default=bdrs_values)
+        own_df = own_df[own_df[own_bdrs_col].isin(selected_bdrs)]
+
     if own_val_col and own_addr_col and own_town_col:
         own_df["map_label"] = (
             own_df[own_addr_col].fillna("").astype(str).str.strip()
