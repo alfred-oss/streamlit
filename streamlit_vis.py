@@ -421,7 +421,14 @@ if not loaded:
     )
     st.stop()
 
-st.caption("Main metric: gap = median_rent_per_bed - median_ownership_per_bed. Positive gap means buying is cheaper than renting per bedroom.")
+st.markdown(
+    """
+<p style="color: #FFFFFF; font-size: 1.05rem; margin-bottom: 0.5rem;">
+Main metric: Difference = Median Rent - Median Ownership. Positive gap means buying is cheaper than renting per bedroom.
+</p>
+""",
+    unsafe_allow_html=True,
+)
 
 ownership_base = loaded.get("df")
 coords_seed_df = ownership_base if ownership_base is not None else loaded.get("merged")
@@ -522,4 +529,3 @@ if own_df is not None:
         st.info("df must include address and monthly ownership per bed columns.")
 
 st.divider()
-
