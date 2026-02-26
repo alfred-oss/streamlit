@@ -340,8 +340,6 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
             return [220, 38, 38, 180]
 
     map_df["color"] = map_df[value_col].apply(color_scale)
-    radius_base = 5000 if map_df[label_col].nunique() < 200 else 2500
-
     st.subheader(title)
     if pdk is None:
         st.warning(
@@ -405,6 +403,14 @@ def show_table(df: pd.DataFrame, *, sort_by: str | None = None, ascending: bool 
     except TypeError:
         st.dataframe(out, use_container_width=True, height=height)
 
+
+def rename_if_present(df: pd.DataFrame, rename_pairs: list[tuple[str | None, str]]) -> pd.DataFrame:
+    rename_map: dict[str, str] = {}
+    for source, target in rename_pairs:
+        if source and source in df.columns:
+            rename_map[source] = target
+    return df.rename(columns=rename_map)
+
 st.title("🏠 Buy vs Rent Interactive Explorer")
 loaded = load_all()
 
@@ -455,11 +461,14 @@ else:
             if real_col:
                 table_cols.append(real_col)
         table_df = main_df[table_cols].copy()
-        table_df = table_df.rename(columns={
-            choose_column(table_df, ["median_ownership_per_bed"]) or "": "Median Ownership",
-            choose_column(table_df, ["median_rent_per_bed"]) or "": "Median Rent",
-            choose_column(table_df, ["gap"]) or "": "Difference",
-        })
+        table_df = rename_if_present(
+            table_df,
+            [
+                (choose_column(table_df, ["median_ownership_per_bed"]), "Median Ownership"),
+                (choose_column(table_df, ["median_rent_per_bed"]), "Median Rent"),
+                (choose_column(table_df, ["gap"]), "Difference"),
+            ],
+        )
         sort_col = "Difference" if "Difference" in table_df.columns else gap_col
         show_table(table_df, sort_by=sort_col, ascending=False, height=500)
 
@@ -490,10 +499,13 @@ if own_df is not None:
             st.subheader("Ownership table")
             cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_val_col] if c]
             table_df = own_df[cols].copy()
-            table_df = table_df.rename(columns={
-                own_addr_col: "Address",
-                own_val_col: "Monthly Ownership",
-            })
+            table_df = rename_if_present(
+                table_df,
+                [
+                    (own_addr_col, "Address"),
+                    (own_val_col, "Monthly Ownership"),
+                ],
+            )
             sort_col = "Monthly Ownership" if "Monthly Ownership" in table_df.columns else own_val_col
             show_table(table_df, sort_by=sort_col, ascending=False, height=500)
     else:
@@ -509,4 +521,3 @@ st.markdown(
 - Red: gap < -400
 """
 )
-
