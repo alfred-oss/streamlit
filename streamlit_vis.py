@@ -454,8 +454,14 @@ else:
             real_col = choose_column(main_df, [col])
             if real_col:
                 table_cols.append(real_col)
-        table_df = main_df[table_cols]
-        show_table(table_df, sort_by=gap_col, ascending=False, height=500)
+        table_df = main_df[table_cols].copy()
+        table_df = table_df.rename(columns={
+            choose_column(table_df, ["median_ownership_per_bed"]) or "": "Median Ownership",
+            choose_column(table_df, ["median_rent_per_bed"]) or "": "Median Rent",
+            choose_column(table_df, ["gap"]) or "": "Difference",
+        })
+        sort_col = "Difference" if "Difference" in table_df.columns else gap_col
+        show_table(table_df, sort_by=sort_col, ascending=False, height=500)
 
 # --- Section 2: ownership map ---
 st.header("2) Ownership map + address table")
@@ -483,8 +489,13 @@ if own_df is not None:
         with c2:
             st.subheader("Ownership table")
             cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_val_col] if c]
-            table_df = own_df[cols]
-            show_table(table_df, sort_by=own_val_col, ascending=False, height=500)
+            table_df = own_df[cols].copy()
+            table_df = table_df.rename(columns={
+                own_addr_col: "Address",
+                own_val_col: "Monthly Ownership",
+            })
+            sort_col = "Monthly Ownership" if "Monthly Ownership" in table_df.columns else own_val_col
+            show_table(table_df, sort_by=sort_col, ascending=False, height=500)
     else:
         st.info("df must include address and monthly ownership per bed columns.")
 
@@ -498,4 +509,3 @@ st.markdown(
 - Red: gap < -400
 """
 )
-
