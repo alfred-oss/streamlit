@@ -7,22 +7,10 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-try:
-    import pydeck as pdk
-except ImportError:
-    pdk = None
+import pydeck as pdk
 
 st.set_page_config(page_title="Buy vs Rent Explorer", layout="wide")
 
-
-def notify_once(key: str, level: str, message: str) -> None:
-    shown = st.session_state.setdefault("_notified_messages", set())
-    if key in shown:
-        return
-    shown.add(key)
-
-    notifier = getattr(st, level, st.info)
-    notifier(message)
 
 DATASET_NAMES = [
     "merged",
@@ -138,14 +126,10 @@ def geocode_queries(queries: tuple[str, ...]) -> pd.DataFrame:
             if data:
                 lat = float(data[0].get("lat"))
                 lon = float(data[0].get("lon"))
-        except (TimeoutError, ValueError, json.JSONDecodeError, OSError):
-            notify_once(
-                "geocode_queries_error",
-                "warning",
-                "Some online geocoding requests failed. Maps will still render using any available coordinates.",
-            )
+        except Exception:
+            pass
         rows.append({"query": query, "lat": lat, "lon": lon})
-        
+
     return pd.DataFrame(rows).dropna(subset=["lat", "lon"]).drop_duplicates(subset=["query"])
 
 
@@ -205,7 +189,7 @@ def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None =
     if not ref.empty:
         try:
             import pgeocode
-            
+
             nomi = pgeocode.Nominatim("us")
             coords = nomi.query_postal_code(ref["ZIP"].tolist())[["latitude", "longitude"]]
             ref = ref.reset_index(drop=True)
@@ -220,18 +204,8 @@ def infer_town_coords(ownership_df: pd.DataFrame, rent_df: pd.DataFrame | None =
                     lat=("lat", "median"),
                     lon=("lon", "median"),
                 )
-        except ImportError:
-            notify_once(
-                "infer_town_coords_no_pgeocode",
-                "info",
-                "pgeocode is not installed, so ZIP-based town coordinates were skipped.",
-            )
-        except (ValueError, KeyError):
-            notify_once(
-                "infer_town_coords_zip_error",
-                "warning",
-                "ZIP-to-coordinate mapping failed for some towns; continuing with online geocoding fallback.",
-            )
+        except Exception:
+            pass
 
     # Online fallback by town string (works even if ZIP-based mapping is empty).
     known_keys = set(agg["town_key"]) if not agg.empty else set()
@@ -308,18 +282,8 @@ def add_coords(df: pd.DataFrame, town_coord_ref: pd.DataFrame) -> pd.DataFrame:
                 out["lat"] = out["lat"].fillna(out["lat_zip"])
                 out["lon"] = out["lon"].fillna(out["lon_zip"])
                 out = out.drop(columns=["ZIP", "lat_zip", "lon_zip"], errors="ignore")
-            except ImportError:
-                notify_once(
-                    "add_coords_no_pgeocode",
-                    "info",
-                    "pgeocode is not installed, so ZIP-based coordinate fallback is unavailable.",
-                )
-            except (ValueError, KeyError):
-                notify_once(
-                    "add_coords_zip_error",
-                    "warning",
-                    "ZIP-based coordinate lookup failed for some rows; trying full-address geocoding next.",
-                )
+            except Exception:
+                pass
 
     missing_mask = out["lat"].isna() | out["lon"].isna()
     if not missing_mask.any():
@@ -376,7 +340,7 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
             return [220, 38, 38, 180]
 
     map_df["color"] = map_df[value_col].apply(color_scale)
-    radius_base = 6 if map_df[label_col].nunique() < 200 else 4
+    radius_base = 5000 if map_df[label_col].nunique() < 200 else 2500
 
     st.subheader(title)
     if pdk is None:
@@ -399,12 +363,12 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
         get_position="[lon, lat]",
         get_fill_color="color",
         get_radius=radius_base,
-        radius_units="pixels",
-        radius_min_pixels=max(3, radius_base - 1),
-        radius_max_pixels=radius_base + 4,
         pickable=True,
         stroked=True,
         filled=True,
+        radius_min_pixels=4,
+        radius_max_pixels=25,
+        line_width_min_pixels=1,
     )
 
     view_state = pdk.ViewState(
@@ -545,4 +509,3 @@ st.markdown(
 - Red: gap < -400
 """
 )
-
