@@ -362,13 +362,13 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
         map_df,
         get_position="[lon, lat]",
         get_fill_color="color",
-        get_radius=radius_base,
+        get_radius=10,
+        radius_units="pixels",
+        radius_min_pixels=5,
+        radius_max_pixels=12,
         pickable=True,
         stroked=True,
         filled=True,
-        radius_min_pixels=4,
-        radius_max_pixels=25,
-        line_width_min_pixels=1,
     )
 
     view_state = pdk.ViewState(
@@ -509,3 +509,4 @@ st.markdown(
 - Red: gap < -400
 """
 )
+
