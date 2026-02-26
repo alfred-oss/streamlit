@@ -472,6 +472,16 @@ else:
         sort_col = "Difference" if "Difference" in table_df.columns else gap_col
         show_table(table_df, sort_by=sort_col, ascending=False, height=500)
 
+    st.markdown(
+        """
+**Heatmap color logic (gap):**
+- Green: gap > 0
+- Light green: gap from -200 to 0
+- Orange: gap from -400 to -200
+- Red: gap < -400
+"""
+    )
+
 # --- Section 2: ownership map ---
 st.header("2) Ownership map + address table")
 own_df = loaded.get("df")
@@ -512,12 +522,3 @@ if own_df is not None:
         st.info("df must include address and monthly ownership per bed columns.")
 
 st.divider()
-st.markdown(
-    """
-**Heatmap color logic (gap):**
-- Green: gap > 0
-- Light green: gap from -200 to 0
-- Orange: gap from -400 to -200
-- Red: gap < -400
-"""
-)
