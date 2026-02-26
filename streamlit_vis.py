@@ -308,13 +308,16 @@ def add_coords(df: pd.DataFrame, town_coord_ref: pd.DataFrame) -> pd.DataFrame:
     return out.drop(columns=["full_address", "lat_geo", "lon_geo"], errors="ignore")
 
 
-def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fixed_gap_colors: bool = False):
+def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fixed_gap_colors: bool = False, marker_color: list[int] | None = None):
     map_df = df.dropna(subset=["lat", "lon", value_col]).copy()
     if map_df.empty:
         st.warning("No coordinates available for this map. Add ZIP codes in addresses or a ZIP column to infer locations.")
         return
 
-    if fixed_gap_colors:
+    if marker_color is not None:
+        def color_scale(v: float):
+            return marker_color
+    elif fixed_gap_colors:
         def color_scale(v: float):
             if v > 0:
                 return [16, 185, 129, 180]  # green
@@ -476,7 +479,7 @@ if own_df is not None:
             total_points = len(own_df)
             mapped_points = int(own_df[["lat", "lon"]].notna().all(axis=1).sum())
             st.caption(f"Mapped towns: {mapped_points}/{total_points}")
-            make_map(own_df, own_val_col, "map_label", "Ownership per bed (address-level)")
+            make_map(own_df, own_val_col, "map_label", "Ownership per bed (address-level)", marker_color=[59, 130, 246, 170])
         with c2:
             st.subheader("Ownership table")
             cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_val_col] if c]
