@@ -9,12 +9,12 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Acushnet, MA",4,964.81,22,02743
 "Acushnet, MA",5,914.53,4,02743
 "Adams, MA",3,564.76,5,01220
-"Agawam, MA",3,813.35,125,01001
+"Agawam, MA",3,815.53,126,01001
 "Agawam, MA",4,735.94,61,01001
 "Agawam, MA",5,621.73,6,01030
 "Agawam, MA",6,457.92,4,01001
-"Amesbury, MA",3,1417.36,53,01913
-"Amesbury, MA",4,1439.17,29,01913
+"Amesbury, MA",3,1379.2,56,01913
+"Amesbury, MA",4,1414.64,30,01913
 "Amesbury, MA",5,1076.1,5,01913
 "Amherst, MA",3,1052.66,48,01002
 "Amherst, MA",4,1128.44,50,01002
@@ -26,57 +26,57 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Arlington, MA",3,1635.42,6,02474
 "Arlington, MA",4,1627.24,10,02476
 "Arlington, MA",6,1482.78,4,02474
-"Ashburnham, MA",3,1041.22,44,01430
+"Ashburnham, MA",3,1041.22,46,01430
 "Ashburnham, MA",4,1012.32,13,01430
 "Ashburnham, MA",5,706.5,3,01430
 "Ashby, MA",3,1112.08,23,01431
 "Ashby, MA",4,1005.78,10,01431
 "Ashfield, MA",3,1043.4,4,01330
 "Ashland, MA",3,1373.75,55,01721
-"Ashland, MA",4,1324.69,29,01721
+"Ashland, MA",4,1324.69,31,01721
 "Ashland, MA",5,1132.36,8,01721
-"Athol, MA",3,806.7,74,01331
+"Athol, MA",3,806.7,76,01331
 "Athol, MA",4,629.64,10,01331
-"Attleboro, MA",3,1144.79,183,02703
-"Attleboro, MA",4,1095.73,76,02703
+"Attleboro, MA",3,1144.79,184,02703
+"Attleboro, MA",4,1103.91,77,02703
 "Attleboro, MA",5,981.25,9,02703
 "Attleboro, MA",6,779.0,8,02703
-"Auburn, MA",3,1048.85,86,01501
+"Auburn, MA",3,1046.67,87,01501
 "Auburn, MA",4,953.45,43,01501
 "Auburn, MA",5,974.71,9,01501
 "Avon, MA",3,1214.57,19,02322
 "Avon, MA",4,1072.83,3,02322
 "Ayer, MA",3,1264.72,31,01432
 "Ayer, MA",4,1384.13,16,01432
-"Barnstable, MA",3,1439.17,199,02632
+"Barnstable, MA",3,1439.17,200,02601
 "Barnstable, MA",4,1193.85,41,02632
 "Barnstable, MA",5,968.17,7,02632
 "Barre, MA",3,894.03,18,01005
 "Barre, MA",4,764.56,8,01005
 "Barre, MA",5,641.08,3,01005
 "Becket, MA",3,654.17,7,01223
-"Bedford, MA",3,1610.34,16,01730
-"Bedford, MA",4,1598.62,16,01730
+"Bedford, MA",3,1589.62,17,01730
+"Bedford, MA",4,1602.71,17,01730
 "Bedford, MA",5,1501.31,9,01730
 "Belchertown, MA",3,992.15,84,01007
 "Belchertown, MA",4,899.48,33,01007
 "Belchertown, MA",5,719.45,3,01007
-"Bellingham, MA",3,1136.61,70,02019
+"Bellingham, MA",3,1122.99,71,02019
 "Bellingham, MA",4,1308.17,41,02019
 "Berkley, MA",3,1322.51,40,02779
 "Berkley, MA",4,1103.91,18,02779
 "Berlin, MA",3,1384.65,3,01503
 "Berlin, MA",4,1624.79,9,01503
 "Bernardston, MA",3,926.74,11,01337
-"Beverly, MA",3,1526.39,64,01915
-"Beverly, MA",4,1309.15,44,01915
+"Beverly, MA",3,1526.39,67,01915
+"Beverly, MA",4,1308.33,45,01915
 "Beverly, MA",5,1259.92,10,01915
-"Billerica, MA",3,1439.17,109,01821
+"Billerica, MA",3,1439.17,113,01821
 "Billerica, MA",4,1300.16,60,01821
 "Billerica, MA",5,1112.08,15,01821
 "Blackstone, MA",3,975.8,30,01504
-"Blackstone, MA",4,899.48,14,01504
-"Blackstone, MA",5,713.04,3,01504
+"Blackstone, MA",4,932.19,15,01504
+"Blackstone, MA",5,691.78,4,01504
 "Blandford, MA",3,937.64,5,01008
 "Bolton, MA",3,1540.02,16,01740
 "Bolton, MA",4,1402.37,20,01740
@@ -99,7 +99,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Boston, MA : Jamaica Plain",3,1684.48,3,02130
 "Boston, MA : Mattapan",3,1275.62,9,02126
 "Boston, MA : Mattapan",4,1063.02,5,02126
-"Boston, MA : Roslindale",3,1633.24,19,02131
+"Boston, MA : Roslindale",3,1623.42,20,02131
 "Boston, MA : Roslindale",4,1390.1,9,02131
 "Boston, MA : Roslindale",5,1282.13,3,02131
 "Boston, MA : Roxbury",3,1559.1,5,02119
@@ -107,7 +107,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Boston, MA : West Roxbury",4,1369.66,22,02132
 "Boston, MA : West Roxbury",5,1206.94,10,02132
 "Bourne, MA",3,1308.12,89,02532
-"Bourne, MA",4,1169.32,30,02532
+"Bourne, MA",4,1169.32,31,02532
 "Bourne, MA",5,964.24,8,02532
 "Boxborough, MA",3,1482.78,9,01719
 "Boxborough, MA",4,1452.25,15,01719
@@ -115,7 +115,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Boxford, MA",4,1447.34,23,01921
 "Boylston, MA",3,1199.31,19,01505
 "Boylston, MA",4,964.9,7,01505
-"Braintree, MA",3,1439.17,79,02184
+"Braintree, MA",3,1433.72,80,02184
 "Braintree, MA",4,1316.51,39,02184
 "Braintree, MA",5,1308.33,15,02184
 "Brewster, MA",3,1526.39,25,02631
@@ -126,7 +126,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Bridgewater, MA",5,902.75,7,02324
 "Brimfield, MA",3,1022.68,20,01010
 "Brimfield, MA",4,1005.78,7,01010
-"Brockton, MA",3,1046.67,278,02302
+"Brockton, MA",3,1046.67,280,02302
 "Brockton, MA",4,940.36,121,02302
 "Brockton, MA",5,798.08,24,02301
 "Brockton, MA",6,848.02,4,02302
@@ -138,7 +138,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Burlington, MA",4,1341.04,35,01803
 "Burlington, MA",5,1439.17,15,01803
 "Canton, MA",3,1515.49,53,02021
-"Canton, MA",4,1414.64,26,02021
+"Canton, MA",4,1406.46,27,02021
 "Canton, MA",5,1256.0,7,02021
 "Carlisle, MA",4,1426.9,6,01741
 "Carver, MA",3,1200.94,52,02330
@@ -149,17 +149,17 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Charlton, MA",5,973.4,4,01507
 "Chatham, MA",3,1635.42,7,02633
 "Chatham, MA",4,1373.75,3,02633
-"Chelmsford, MA",3,1471.88,119,01824
+"Chelmsford, MA",3,1474.06,120,01824
 "Chelmsford, MA",4,1308.33,72,01824
 "Chelmsford, MA",5,1152.58,16,01824
 "Chelmsford, MA",6,997.6,3,01863
 "Chelsea, MA",3,1331.23,20,02150
 "Chelsea, MA",4,1259.27,3,02150
 "Cheshire, MA",3,1122.99,3,01225
-"Chester, MA",3,828.61,5,01011
+"Chester, MA",3,812.26,6,01011
 "Chesterfield, MA",3,964.79,10,01012
-"Chicopee, MA",3,708.68,160,01020
-"Chicopee, MA",4,585.48,67,01020
+"Chicopee, MA",3,708.68,163,01020
+"Chicopee, MA",4,578.94,68,01020
 "Chicopee, MA",5,497.17,5,01020
 "Chicopee, MA",6,468.82,7,01020
 "Clinton, MA",3,1041.22,34,01510
@@ -175,48 +175,48 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Danvers, MA",3,1471.88,59,01923
 "Danvers, MA",4,1267.45,37,01923
 "Danvers, MA",5,1285.44,10,01923
-"Dartmouth, MA",3,1221.11,81,02747
+"Dartmouth, MA",3,1221.11,83,02747
 "Dartmouth, MA",4,1205.3,37,02747
 "Dartmouth, MA",5,990.41,8,02747
-"Dedham, MA",3,1502.4,59,02026
+"Dedham, MA",3,1498.04,60,02026
 "Dedham, MA",4,1308.33,29,02026
 "Dedham, MA",5,1169.65,5,02026
 "Deerfield, MA",3,894.03,17,01373
-"Deerfield, MA",4,874.95,4,01373
+"Deerfield, MA",4,874.95,6,01373
 "Dennis, MA",3,1362.85,60,02660
-"Dennis, MA",4,1287.89,30,02639
+"Dennis, MA",4,1308.33,31,02639
 "Dighton, MA",3,1314.77,42,02715
-"Dighton, MA",4,1041.76,16,02764
+"Dighton, MA",4,1061.39,17,02764
 "Dighton, MA",5,1282.17,3,02764
-"Douglas, MA",3,1170.96,51,01516
+"Douglas, MA",3,1151.33,52,01516
 "Douglas, MA",4,1144.79,17,01516
 "Dover, MA",4,1594.53,4,02030
-"Dracut, MA",3,1221.11,91,01826
+"Dracut, MA",3,1221.11,92,01826
 "Dracut, MA",4,1177.5,61,01826
 "Dracut, MA",5,853.69,14,01826
 "Dracut, MA",6,899.48,7,01826
-"Dudley, MA",3,981.25,54,01571
+"Dudley, MA",3,981.25,55,01571
 "Dudley, MA",4,814.44,24,01571
 "Dudley, MA",5,765.38,3,01571
 "Dunstable, MA",3,1498.04,6,01827
 "Dunstable, MA",4,1365.57,11,01827
 "Duxbury, MA",3,1587.44,15,02332
 "Duxbury, MA",4,1464.52,32,02332
-"East Bridgewater, MA",3,1308.33,41,02333
+"East Bridgewater, MA",3,1311.6,42,02333
 "East Bridgewater, MA",4,1274.81,22,02333
 "East Bridgewater, MA",6,1275.63,4,02333
 "East Brookfield, MA",3,1035.76,9,01515
 "East Brookfield, MA",4,694.23,4,01515
-"East Longmeadow, MA",3,828.61,63,01028
+"East Longmeadow, MA",3,828.61,64,01028
 "East Longmeadow, MA",4,735.94,50,01028
-"East Longmeadow, MA",5,1027.04,9,01028
+"East Longmeadow, MA",5,971.37,10,01028
 "Eastham, MA",3,1602.71,20,02642
 "Eastham, MA",4,1471.88,7,02642
 "Easthampton, MA",3,970.35,64,01027
 "Easthampton, MA",4,825.89,17,01027
 "Easthampton, MA",5,995.64,3,01027
-"Easton, MA",3,1368.3,62,02375
-"Easton, MA",4,1417.91,44,02356
+"Easton, MA",3,1362.85,63,02375
+"Easton, MA",4,1413.0,45,02356
 "Easton, MA",5,1118.62,4,02356
 "Erving, MA",3,937.64,6,01344
 "Everett, MA",3,1482.78,19,02149
@@ -225,25 +225,25 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Everett, MA",6,1071.2,3,02149
 "Fairhaven, MA",3,1116.99,48,02719
 "Fairhaven, MA",4,1120.26,5,02719
-"Fall River, MA",3,1000.88,189,02720
+"Fall River, MA",3,1001.86,190,02720
 "Fall River, MA",4,768.65,48,02721
 "Fall River, MA",5,707.81,8,02724
 "Fall River, MA",6,681.42,7,02724
 "Falmouth, MA",3,1343.22,119,02536
 "Falmouth, MA",4,1255.18,70,02536
 "Falmouth, MA",5,1210.21,7,02536
-"Fitchburg, MA",3,959.44,104,01420
-"Fitchburg, MA",4,768.65,38,01420
+"Fitchburg, MA",3,959.44,105,01420
+"Fitchburg, MA",4,764.56,40,01420
 "Fitchburg, MA",5,752.29,6,01420
 "Fitchburg, MA",6,561.49,5,01420
 "Foxboro, MA",3,1330.14,45,02035
 "Foxboro, MA",4,1381.93,28,02035
 "Foxboro, MA",5,1534.02,4,02035
-"Framingham, MA",3,1393.92,196,01701
-"Framingham, MA",4,1275.62,142,01701
+"Framingham, MA",3,1392.28,197,01701
+"Framingham, MA",4,1275.62,143,01701
 "Framingham, MA",5,1139.56,17,01701
 "Framingham, MA",6,904.93,5,01702
-"Franklin, MA",3,1351.94,83,02038
+"Franklin, MA",3,1373.75,85,02038
 "Franklin, MA",4,1390.1,86,02038
 "Franklin, MA",5,1226.56,12,02038
 "Freetown, MA",3,1308.33,42,02717
@@ -257,7 +257,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Gloucester, MA",3,1537.29,26,01930
 "Gloucester, MA",4,1259.27,11,01930
 "Goshen, MA",3,942.55,4,01032
-"Grafton, MA",3,1272.35,82,01536
+"Grafton, MA",3,1275.62,85,01536
 "Grafton, MA",4,1344.31,44,01519
 "Grafton, MA",5,1570.0,7,01519
 "Granby, MA",3,861.32,25,01033
@@ -265,9 +265,9 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Granville, MA",3,915.83,5,01034
 "Granville, MA",4,719.58,3,01034
 "Greenfield, MA",3,785.0,33,01301
-"Greenfield, MA",4,685.24,16,01301
+"Greenfield, MA",4,686.88,17,01301
 "Groton, MA",3,1387.27,32,01450
-"Groton, MA",4,1496.41,40,01450
+"Groton, MA",4,1496.41,41,01450
 "Groton, MA",5,1602.71,5,01450
 "Groveland, MA",3,1428.26,22,01834
 "Groveland, MA",4,1361.48,14,01834
@@ -277,14 +277,14 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Halifax, MA",3,1177.5,37,02338
 "Halifax, MA",4,1377.02,11,02338
 "Hamilton, MA",3,1450.07,15,01982
-"Hamilton, MA",4,1441.29,8,01982
+"Hamilton, MA",4,1430.99,9,01982
 "Hampden, MA",3,959.23,21,01036
 "Hampden, MA",4,829.16,22,01036
 "Hanover, MA",3,1455.52,32,02339
 "Hanover, MA",4,1353.31,26,02339
 "Hanover, MA",5,1246.19,8,02339
 "Hanson, MA",3,1311.06,32,02341
-"Hanson, MA",4,1275.63,28,02341
+"Hanson, MA",4,1267.45,29,02341
 "Hardwick, MA",3,992.15,9,01037
 "Harvard, MA",3,1504.58,8,01451
 "Harvard, MA",4,1471.88,9,01451
@@ -300,11 +300,11 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Hingham, MA",4,1578.18,8,02043
 "Hingham, MA",5,1291.98,4,02043
 "Hinsdale, MA",4,789.21,3,01235
-"Holbrook, MA",3,1154.6,59,02343
+"Holbrook, MA",3,1149.7,60,02343
 "Holbrook, MA",4,1112.08,20,02343
 "Holbrook, MA",5,902.75,7,02343
-"Holden, MA",3,1174.23,91,01520
-"Holden, MA",4,1126.39,76,01520
+"Holden, MA",3,1188.4,93,01520
+"Holden, MA",4,1124.35,77,01520
 "Holden, MA",5,997.6,6,01520
 "Holland, MA",3,894.03,23,01521
 "Holland, MA",4,628.0,7,01521
@@ -320,7 +320,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Hopkinton, MA",4,1606.8,32,01748
 "Hubbardston, MA",3,1057.57,21,01452
 "Hubbardston, MA",4,940.36,5,01452
-"Hudson, MA",3,1311.6,68,01749
+"Hudson, MA",3,1317.06,69,01749
 "Hudson, MA",4,1161.15,47,01749
 "Hudson, MA",5,1088.53,11,01749
 "Hull, MA",3,1384.65,23,02045
@@ -329,7 +329,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Ipswich, MA",3,1495.86,34,01938
 "Ipswich, MA",4,1300.16,13,01938
 "Ipswich, MA",5,1635.42,3,01938
-"Kingston, MA",3,1346.49,46,02364
+"Kingston, MA",3,1362.85,47,02364
 "Kingston, MA",4,1424.82,22,02364
 "Kingston, MA",5,1252.73,4,02364
 "Lakeville, MA",3,1215.66,64,02347
@@ -340,72 +340,72 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Lancaster, MA",5,922.38,3,01523
 "Lanesborough, MA",3,844.97,6,01237
 "Lanesborough, MA",4,686.88,6,01237
-"Lawrence, MA",3,1199.31,57,01843
+"Lawrence, MA",3,1199.31,59,01843
 "Lawrence, MA",4,952.63,20,01843
 "Lawrence, MA",6,964.35,4,01843
 "Leicester, MA",3,937.64,46,01524
 "Leicester, MA",4,834.06,18,01524
 "Leicester, MA",5,510.25,3,01542
-"Leominster, MA",3,1065.2,136,01453
-"Leominster, MA",4,937.09,47,01453
+"Leominster, MA",3,1061.93,137,01453
+"Leominster, MA",4,934.64,48,01453
 "Leominster, MA",5,888.36,9,01453
-"Leominster, MA",6,654.17,5,01453
+"Leominster, MA",6,654.17,6,01453
 "Leverett, MA",3,1362.85,4,01054
 "Leverett, MA",4,948.54,4,01054
 "Lexington, MA",4,1742.21,3,02420
 "Leyden, MA",3,1155.69,5,01337
 "Lincoln, MA",3,1742.26,3,01773
 "Lincoln, MA",4,1570.0,3,01773
-"Littleton, MA",3,1359.03,22,01460
+"Littleton, MA",3,1362.85,23,01460
 "Littleton, MA",4,1480.05,13,01460
 "Littleton, MA",5,1477.11,3,01460
 "Longmeadow, MA",3,1035.76,69,01106
 "Longmeadow, MA",4,1112.08,47,01106
 "Longmeadow, MA",5,915.7,13,01106
-"Lowell, MA",3,1185.68,150,01852
-"Lowell, MA",4,1010.69,71,01852
+"Lowell, MA",3,1193.85,154,01852
+"Lowell, MA",4,1009.05,72,01852
 "Lowell, MA",5,758.83,11,01854
 "Lowell, MA",6,872.22,9,01852
-"Ludlow, MA",3,781.73,94,01056
+"Ludlow, MA",3,781.73,96,01056
 "Ludlow, MA",4,720.4,47,01056
 "Ludlow, MA",5,706.5,7,01056
-"Lunenburg, MA",3,1112.08,71,01462
+"Lunenburg, MA",3,1112.08,73,01462
 "Lunenburg, MA",4,1226.48,24,01462
 "Lunenburg, MA",6,883.12,3,01462
-"Lynn, MA",3,1334.5,121,01904
+"Lynn, MA",3,1334.5,123,01904
 "Lynn, MA",4,1128.44,31,01904
 "Lynn, MA",5,955.08,11,01904
 "Lynnfield, MA",3,1460.97,11,01940
 "Lynnfield, MA",4,1586.35,17,01940
 "Lynnfield, MA",5,1177.5,5,01940
-"Malden, MA",3,1443.53,39,02148
+"Malden, MA",3,1452.25,40,02148
 "Malden, MA",4,1398.28,20,02148
 "Malden, MA",6,1144.79,6,02148
 "Manchester, MA",4,1406.46,5,01944
-"Mansfield, MA",3,1417.36,47,02048
+"Mansfield, MA",3,1395.56,48,02048
 "Mansfield, MA",4,1418.72,44,02048
 "Mansfield, MA",5,1578.18,8,02048
-"Mansfield, MA",6,855.87,5,02048
+"Mansfield, MA",6,842.24,6,02048
 "Marblehead, MA",3,1570.0,26,01945
 "Marblehead, MA",4,1578.18,18,01945
 "Marblehead, MA",5,1256.0,6,01945
 "Marion, MA",3,1362.85,13,02738
 "Marion, MA",4,1103.91,13,02738
-"Marlborough, MA",3,1253.82,104,01752
-"Marlborough, MA",4,1144.79,79,01752
+"Marlborough, MA",3,1253.82,105,01752
+"Marlborough, MA",4,1169.32,81,01752
 "Marlborough, MA",5,1177.5,11,01752
 "Marlborough, MA",6,1090.28,3,01752
-"Marshfield, MA",3,1526.39,60,02050
+"Marshfield, MA",3,1526.39,61,02050
 "Marshfield, MA",4,1434.26,39,02050
 "Marshfield, MA",5,1184.04,8,02050
 "Mashpee, MA",3,1365.03,55,02649
 "Mashpee, MA",4,1079.38,17,02649
 "Mattapoisett, MA",3,1384.65,24,02739
 "Mattapoisett, MA",4,1278.9,16,02739
-"Maynard, MA",3,1262.54,51,01754
-"Maynard, MA",4,1336.95,22,01754
+"Maynard, MA",3,1262.54,53,01754
+"Maynard, MA",4,1341.04,23,01754
 "Medfield, MA",3,1526.39,9,02052
-"Medfield, MA",4,1512.76,25,02052
+"Medfield, MA",4,1534.84,26,02052
 "Medfield, MA",5,1484.96,4,02052
 "Medford, MA",3,1591.81,35,02155
 "Medford, MA",4,1570.0,25,02155
@@ -422,31 +422,31 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Mendon, MA",5,1347.58,4,01756
 "Merrimac, MA",3,1471.88,17,01860
 "Merrimac, MA",4,1308.33,9,01860
-"Methuen, MA",3,1303.86,164,01844
-"Methuen, MA",4,1128.44,87,01844
+"Methuen, MA",3,1303.86,166,01844
+"Methuen, MA",4,1132.53,88,01844
 "Methuen, MA",5,919.1,18,01844
 "Methuen, MA",6,898.93,6,01844
-"Middleboro, MA",3,1242.92,119,02346
+"Middleboro, MA",3,1240.19,120,02346
 "Middleboro, MA",4,1210.62,45,02346
 "Middleboro, MA",5,1074.57,4,02346
-"Middleton, MA",3,1586.35,15,01949
+"Middleton, MA",3,1507.31,16,01949
 "Middleton, MA",4,1561.82,9,01949
 "Middleton, MA",5,883.12,3,01949
 "Milford, MA",3,1221.11,84,01757
 "Milford, MA",4,1181.59,62,01757
-"Milford, MA",5,817.71,3,01757
+"Milford, MA",5,876.58,4,01757
 "Millbury, MA",3,1039.91,60,01527
 "Millbury, MA",4,1083.46,32,01527
 "Millis, MA",3,1362.85,31,02054
 "Millis, MA",4,1282.17,37,02054
-"Millis, MA",5,1033.58,8,02054
+"Millis, MA",5,1072.83,9,02054
 "Millville, MA",3,1172.05,12,01529
 "Millville, MA",4,985.34,8,01529
 "Milton, MA",3,1575.45,12,02186
 "Milton, MA",4,1471.07,18,02186
 "Milton, MA",5,1504.58,3,02186
 "Milton, MA",6,1199.31,3,02186
-"Monson, MA",3,948.54,35,01057
+"Monson, MA",3,952.9,37,01057
 "Monson, MA",4,857.78,16,01057
 "Montague, MA",3,789.36,28,01376
 "Montague, MA",4,654.17,9,01351
@@ -458,7 +458,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Natick, MA",5,1413.0,12,01760
 "Natick, MA",6,1272.9,3,01760
 "Needham, MA",4,1704.92,8,02492
-"New Bedford, MA",3,1035.76,121,02745
+"New Bedford, MA",3,1035.76,123,02745
 "New Bedford, MA",4,793.18,25,02745
 "New Bedford, MA",5,644.35,4,02745
 "New Bedford, MA",6,588.75,3,02746
@@ -467,7 +467,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Newbury, MA",3,1504.47,10,01951
 "Newbury, MA",4,1570.0,10,01922
 "Newburyport, MA",3,1592.9,14,01950
-"Newburyport, MA",4,1488.23,5,01950
+"Newburyport, MA",4,1438.76,6,01950
 "Newburyport, MA",5,1622.33,3,01950
 "Newton, MA",4,1561.82,3,02460
 "Newton, MA",5,1583.08,5,02466
@@ -478,7 +478,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "North Andover, MA",4,1482.1,70,01845
 "North Andover, MA",5,1475.15,14,01845
 "North Attleboro, MA",3,1308.33,71,02760
-"North Attleboro, MA",4,1230.65,64,02760
+"North Attleboro, MA",4,1226.56,65,02760
 "North Attleboro, MA",5,1013.96,12,02760
 "North Brookfield, MA",3,981.25,23,01535
 "North Brookfield, MA",4,910.11,4,01535
@@ -491,19 +491,19 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Northborough, MA",3,1295.47,45,01532
 "Northborough, MA",4,1332.86,55,01532
 "Northborough, MA",5,1079.38,5,01532
-"Northbridge, MA",3,1097.91,44,01534
-"Northbridge, MA",4,1144.79,43,01534
+"Northbridge, MA",3,1105.54,45,01534
+"Northbridge, MA",4,1170.84,44,01534
 "Northbridge, MA",5,974.71,5,01534
 "Northbridge, MA",6,697.78,3,01534
 "Northfield, MA",3,872.22,13,01360
 "Northfield, MA",4,654.0,5,01360
 "Norton, MA",3,1308.33,71,02766
-"Norton, MA",4,1267.37,36,02766
+"Norton, MA",4,1275.62,37,02766
 "Norwell, MA",3,1684.48,18,02061
 "Norwell, MA",4,1414.64,9,02061
 "Norwell, MA",5,1717.19,4,02061
-"Norwood, MA",3,1526.39,71,02062
-"Norwood, MA",4,1355.76,32,02062
+"Norwood, MA",3,1526.39,73,02062
+"Norwood, MA",4,1321.42,33,02062
 "Norwood, MA",5,1358.05,6,02062
 "Oakham, MA",3,928.92,4,01068
 "Orange, MA",3,790.23,39,01364
@@ -511,21 +511,21 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Orleans, MA",3,1597.15,8,02653
 "Orleans, MA",4,1533.2,3,02653
 "Otis, MA",3,835.15,6,01253
-"Oxford, MA",3,981.25,70,01540
+"Oxford, MA",3,981.25,71,01540
 "Oxford, MA",4,925.24,22,01540
 "Oxford, MA",5,1112.08,3,01540
-"Palmer, MA",3,763.19,49,01069
+"Palmer, MA",3,763.19,51,01069
 "Palmer, MA",4,585.48,20,01069
 "Paxton, MA",3,1008.51,16,01612
 "Paxton, MA",4,1161.15,16,01612
 "Peabody, MA",3,1450.07,109,01960
-"Peabody, MA",4,1316.51,67,01960
+"Peabody, MA",4,1312.42,68,01960
 "Peabody, MA",5,1072.83,19,01960
 "Peabody, MA",6,1011.23,6,01960
 "Pelham, MA",3,1060.84,6,01002
 "Pelham, MA",4,817.71,5,01002
 "Pembroke, MA",3,1319.24,76,02359
-"Pembroke, MA",4,1267.45,32,02359
+"Pembroke, MA",4,1267.45,33,02359
 "Pembroke, MA",5,1112.08,5,02359
 "Pepperell, MA",3,1283.26,48,01463
 "Pepperell, MA",4,1128.44,48,01463
@@ -538,24 +538,24 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Pittsfield, MA",4,600.05,20,01201
 "Plainville, MA",3,1286.53,22,02762
 "Plainville, MA",4,1259.27,22,02762
-"Plymouth, MA",3,1355.11,260,02360
-"Plymouth, MA",4,1291.98,100,02360
+"Plymouth, MA",3,1358.27,261,02360
+"Plymouth, MA",4,1300.16,101,02360
 "Plymouth, MA",5,967.51,8,02360
 "Plympton, MA",3,1330.14,8,02367
 "Plympton, MA",4,1169.32,5,02367
 "Princeton, MA",3,1134.79,13,01541
 "Princeton, MA",4,1232.2,14,01541
-"Quincy, MA",3,1512.22,106,02169
+"Quincy, MA",3,1524.21,107,02169
 "Quincy, MA",4,1360.09,52,02169
 "Quincy, MA",5,1177.5,11,02169
 "Quincy, MA",6,1079.38,6,02169
 "Quincy, MA",7,1074.7,3,02169
 "Randolph, MA",3,1233.98,93,02368
-"Randolph, MA",4,1095.73,49,02368
+"Randolph, MA",4,1095.73,50,02368
 "Randolph, MA",5,863.5,13,02368
 "Randolph, MA",6,1005.78,6,02368
 "Raynham, MA",3,1297.43,57,02767
-"Raynham, MA",4,1218.39,39,02767
+"Raynham, MA",4,1214.3,40,02767
 "Raynham, MA",5,1242.92,5,02767
 "Reading, MA",3,1583.08,35,01867
 "Reading, MA",4,1435.08,28,01867
@@ -565,57 +565,57 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Rehoboth, MA",5,885.74,8,02769
 "Revere, MA",3,1417.36,74,02151
 "Revere, MA",4,1267.45,45,02151
-"Revere, MA",5,1170.96,25,02151
+"Revere, MA",5,1161.15,26,02151
 "Revere, MA",6,1031.4,14,02151
 "Rochester, MA",3,1460.97,23,02770
 "Rochester, MA",4,1304.16,8,02770
-"Rockland, MA",3,1248.37,72,02370
-"Rockland, MA",4,1093.19,24,02370
+"Rockland, MA",3,1242.92,73,02370
+"Rockland, MA",4,1139.89,25,02370
 "Rockland, MA",5,830.79,3,02370
 "Rockport, MA",3,1657.22,10,01966
 "Rockport, MA",4,1568.36,4,01966
 "Rowley, MA",3,1417.36,7,01969
 "Rowley, MA",4,1597.8,17,01969
 "Royalston, MA",3,887.49,5,01368
-"Russell, MA",3,708.68,5,01071
+"Russell, MA",3,710.86,6,01071
 "Russell, MA",4,678.7,3,01071
 "Rutland, MA",3,1149.15,49,01543
 "Rutland, MA",4,1081.83,30,01543
-"Salem, MA",3,1362.85,59,01970
-"Salem, MA",4,1226.56,31,01970
-"Salisbury, MA",3,1417.36,30,01952
+"Salem, MA",3,1357.4,60,01970
+"Salem, MA",4,1226.56,32,01970
+"Salisbury, MA",3,1417.36,31,01952
 "Salisbury, MA",4,1279.71,12,01952
 "Salisbury, MA",5,1025.73,6,01952
 "Sandwich, MA",3,1417.36,95,02563
 "Sandwich, MA",4,1112.08,38,02563
 "Sandwich, MA",5,1462.06,4,02537
-"Saugus, MA",3,1452.25,60,01906
+"Saugus, MA",3,1450.07,63,01906
 "Saugus, MA",4,1234.74,39,01906
 "Saugus, MA",5,1239.65,12,01906
 "Savoy, MA",3,854.78,3,01256
 "Scituate, MA",3,1503.49,16,02066
 "Scituate, MA",4,1406.46,19,02066
 "Scituate, MA",5,1439.17,7,02066
-"Seekonk, MA",3,1242.92,56,02771
-"Seekonk, MA",4,1087.55,28,02771
+"Seekonk, MA",3,1242.92,57,02771
+"Seekonk, MA",4,1112.08,29,02771
 "Seekonk, MA",5,1242.92,6,02771
 "Sharon, MA",3,1493.68,51,02067
 "Sharon, MA",4,1496.41,28,02067
 "Sharon, MA",5,1051.9,3,02067
 "Shelburne, MA",3,1030.31,4,01370
-"Shirley, MA",3,1133.89,18,01464
+"Shirley, MA",3,1122.99,19,01464
 "Shirley, MA",4,1144.79,15,01464
 "Shrewsbury, MA",3,1297.43,82,01545
 "Shrewsbury, MA",4,1337.77,67,01545
 "Shrewsbury, MA",5,1308.33,19,01545
-"Shrewsbury, MA",6,1417.36,4,01545
+"Shrewsbury, MA",6,1308.33,5,01545
 "Shutesbury, MA",3,773.01,10,01072
 "Shutesbury, MA",4,915.83,3,01072
 "Somerset, MA",3,1068.47,112,02726
 "Somerset, MA",4,940.36,31,02726
 "Somerville, MA",3,1662.67,4,02144
 "Somerville, MA",5,1772.79,3,02144
-"South Hadley, MA",3,904.93,69,01075
+"South Hadley, MA",3,904.93,70,01075
 "South Hadley, MA",4,729.4,41,01075
 "South Hadley, MA",5,850.42,5,01075
 "Southampton, MA",3,1139.34,28,01073
@@ -624,7 +624,7 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Southborough, MA",4,1476.78,22,01772
 "Southborough, MA",5,1570.0,3,01772
 "Southbridge, MA",3,828.61,64,01550
-"Southbridge, MA",4,668.07,18,01550
+"Southbridge, MA",4,645.99,21,01550
 "Southbridge, MA",5,626.46,6,01550
 "Southbridge, MA",6,497.71,6,01550
 "Southwick, MA",3,926.74,44,01077
@@ -633,22 +633,22 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Spencer, MA",3,948.54,53,01562
 "Spencer, MA",4,883.12,17,01562
 "Spencer, MA",5,856.96,3,01562
-"Springfield, MA",3,675.97,428,01118
-"Springfield, MA",4,560.95,152,01118
-"Springfield, MA",5,523.33,16,01118
+"Springfield, MA",3,675.97,435,01118
+"Springfield, MA",4,560.95,154,01118
+"Springfield, MA",5,523.33,17,01118
 "Springfield, MA",6,490.62,37,01109
 "Sterling, MA",3,1253.82,20,01564
 "Sterling, MA",4,1091.56,20,01564
-"Stoneham, MA",3,1564.55,34,02180
-"Stoneham, MA",4,1524.21,21,02180
+"Stoneham, MA",3,1559.1,35,02180
+"Stoneham, MA",4,1526.66,22,02180
 "Stoneham, MA",5,1138.25,3,02180
 "Stoneham, MA",6,1125.71,4,02180
-"Stoughton, MA",3,1242.92,99,02072
-"Stoughton, MA",4,1158.69,72,02072
+"Stoughton, MA",3,1242.92,101,02072
+"Stoughton, MA",4,1161.15,73,02072
 "Stoughton, MA",5,1038.16,8,02072
 "Stow, MA",3,1505.13,16,01775
 "Stow, MA",4,1443.26,18,01775
-"Sturbridge, MA",3,1063.02,59,01566
+"Sturbridge, MA",3,1060.3,60,01566
 "Sturbridge, MA",4,933.82,40,01566
 "Sturbridge, MA",5,1036.2,5,01566
 "Sudbury, MA",3,1591.81,18,01776
@@ -658,15 +658,15 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Sutton, MA",3,1221.11,33,01590
 "Sutton, MA",4,1226.56,23,01590
 "Sutton, MA",5,1236.38,3,01590
-"Swampscott, MA",3,1508.4,10,01907
+"Swampscott, MA",3,1548.19,11,01907
 "Swampscott, MA",4,1193.85,13,01907
-"Swansea, MA",3,1100.09,74,02777
+"Swansea, MA",3,1088.1,75,02777
 "Swansea, MA",4,1051.41,19,02777
 "Swansea, MA",5,1111.95,3,02777
-"Taunton, MA",3,1122.99,240,02780
-"Taunton, MA",4,981.25,59,02780
+"Taunton, MA",3,1122.99,241,02780
+"Taunton, MA",4,977.16,60,02780
 "Taunton, MA",5,830.79,7,02780
-"Templeton, MA",3,997.5,36,01468
+"Templeton, MA",3,992.15,37,01468
 "Templeton, MA",4,870.86,8,01468
 "Tewksbury, MA",3,1460.97,106,01876
 "Tewksbury, MA",4,1242.92,75,01876
@@ -677,44 +677,44 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Topsfield, MA",3,1641.96,7,01983
 "Topsfield, MA",4,1551.19,18,01983
 "Topsfield, MA",5,1321.42,4,01983
-"Townsend, MA",3,1117.53,60,01469
+"Townsend, MA",3,1112.08,61,01469
 "Townsend, MA",4,981.25,18,01474
-"Tyngsborough, MA",3,1346.49,34,01879
-"Tyngsborough, MA",4,1324.69,29,01879
+"Tyngsborough, MA",3,1362.85,35,01879
+"Tyngsborough, MA",4,1324.69,30,01879
 "Upton, MA",3,1308.33,21,01568
 "Upton, MA",4,1359.85,26,01568
 "Upton, MA",5,1396.65,4,01568
 "Uxbridge, MA",3,1182.95,92,01569
 "Uxbridge, MA",4,1203.56,56,01569
-"Wakefield, MA",3,1580.9,53,01880
+"Wakefield, MA",3,1586.25,54,01880
 "Wakefield, MA",4,1444.07,35,01880
 "Wakefield, MA",5,1224.93,6,01880
 "Wakefield, MA",6,1117.53,3,01880
 "Wales, MA",3,708.68,5,01081
 "Wales, MA",4,948.46,4,01081
-"Walpole, MA",3,1395.56,56,02081
-"Walpole, MA",4,1341.04,43,02081
+"Walpole, MA",3,1373.75,57,02081
+"Walpole, MA",4,1328.78,44,02081
 "Walpole, MA",5,1253.38,10,02081
 "Walpole, MA",6,1362.85,3,02032
 "Waltham, MA",3,1624.51,53,02451
 "Waltham, MA",4,1480.05,45,02451
-"Waltham, MA",5,1504.58,5,02451
+"Waltham, MA",5,1380.29,6,02451
 "Waltham, MA",6,1281.08,3,02451
 "Ware, MA",3,802.44,47,01082
 "Ware, MA",4,780.91,12,01082
 "Wareham, MA",3,1112.08,108,02571
 "Wareham, MA",4,979.61,43,02571
 "Wareham, MA",5,1190.45,4,02571
-"Warren, MA",3,957.26,29,01083
+"Warren, MA",3,936.55,30,01083
 "Warren, MA",4,771.92,6,01083
-"Watertown, MA",3,1689.93,19,02472
-"Watertown, MA",4,1430.99,7,02472
+"Watertown, MA",3,1684.48,20,02472
+"Watertown, MA",4,1451.43,8,02472
 "Watertown, MA",6,1321.96,4,02472
-"Wayland, MA",3,1688.84,6,01778
+"Wayland, MA",3,1744.44,7,01778
 "Wayland, MA",4,1594.53,14,01778
 "Webster, MA",3,928.92,78,01570
 "Webster, MA",4,791.13,30,01570
-"Webster, MA",5,663.98,6,01570
+"Webster, MA",5,683.6,8,01570
 "Webster, MA",7,607.35,3,01570
 "Wellfleet, MA",3,1362.85,5,02667
 "Wellfleet, MA",4,1144.79,5,02667
@@ -722,51 +722,51 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Wenham, MA",4,1532.39,3,01984
 "West Boylston, MA",3,1133.89,37,01583
 "West Boylston, MA",4,1050.76,12,01583
-"West Bridgewater, MA",3,1264.72,24,02379
+"West Bridgewater, MA",3,1264.72,26,02379
 "West Bridgewater, MA",4,1063.02,9,02379
-"West Brookfield, MA",3,1076.0,24,01585
+"West Brookfield, MA",3,1068.25,25,01585
 "West Brookfield, MA",4,784.84,7,01585
 "West Newbury, MA",3,1493.68,7,01985
 "West Newbury, MA",4,1512.76,9,01985
-"West Springfield, MA",3,806.81,74,01089
+"West Springfield, MA",3,806.81,75,01089
 "West Springfield, MA",4,667.25,48,01089
 "West Springfield, MA",5,560.62,4,01089
 "West Springfield, MA",6,468.82,3,01089
-"Westborough, MA",3,1395.56,46,01581
+"Westborough, MA",3,1395.56,47,01581
 "Westborough, MA",4,1324.69,33,01581
 "Westborough, MA",5,1291.98,6,01581
 "Westborough, MA",6,1198.22,3,01581
-"Westfield, MA",3,853.14,124,01085
+"Westfield, MA",3,850.42,127,01085
 "Westfield, MA",4,785.0,74,01085
 "Westfield, MA",5,558.66,9,01085
 "Westford, MA",3,1515.49,33,01886
-"Westford, MA",4,1496.41,51,01886
+"Westford, MA",4,1492.73,52,01886
 "Westford, MA",5,1177.5,5,01886
 "Westhampton, MA",3,1008.51,10,01027
 "Westminster, MA",3,1177.5,51,01473
 "Westminster, MA",4,1185.68,29,01473
-"Westport, MA",3,1308.33,39,02790
+"Westport, MA",3,1308.33,40,02790
 "Westport, MA",4,1251.09,9,02790
 "Westwood, MA",3,1635.2,11,02090
 "Westwood, MA",4,1471.88,6,02090
 "Westwood, MA",5,1668.12,3,02090
-"Weymouth, MA",3,1411.91,164,02190
-"Weymouth, MA",4,1218.39,89,02190
+"Weymouth, MA",3,1417.36,165,02190
+"Weymouth, MA",4,1218.39,91,02190
 "Weymouth, MA",5,1062.37,7,02190
 "Weymouth, MA",6,1046.67,3,02189
 "Whately, MA",3,948.0,4,01373
 "Whitman, MA",3,1166.49,48,02382
 "Whitman, MA",4,1004.15,10,02382
 "Whitman, MA",5,1046.67,5,02382
-"Wilbraham, MA",3,981.25,52,01095
-"Wilbraham, MA",4,883.12,97,01095
+"Wilbraham, MA",3,981.25,53,01095
+"Wilbraham, MA",4,879.04,98,01095
 "Wilbraham, MA",5,1048.63,12,01095
 "Williamsburg, MA",3,1035.76,7,01096
 "Williamsburg, MA",4,1349.22,4,01039
 "Williamstown, MA",3,625.82,5,01267
-"Wilmington, MA",3,1559.1,84,01887
-"Wilmington, MA",4,1430.91,26,01887
-"Winchendon, MA",3,993.24,62,01475
+"Wilmington, MA",3,1570.0,85,01887
+"Wilmington, MA",4,1430.83,27,01887
+"Winchendon, MA",3,1003.06,63,01475
 "Winchendon, MA",4,719.58,15,01475
 "Winchendon, MA",5,804.62,3,01475
 "Winchester, MA",4,1659.95,5,01890
@@ -775,9 +775,9 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Winthrop, MA",4,1413.82,6,02152
 "Winthrop, MA",5,1445.71,4,02152
 "Woburn, MA",3,1510.03,72,01801
-"Woburn, MA",4,1449.8,38,01801
+"Woburn, MA",4,1447.34,39,01801
 "Woburn, MA",5,1216.75,10,01801
-"Worcester, MA",3,1003.06,366,01604
+"Worcester, MA",3,1003.06,370,01604
 "Worcester, MA",4,915.56,120,01606
 "Worcester, MA",5,850.42,11,01609
 "Worcester, MA",6,741.39,7,01604
@@ -786,5 +786,5 @@ Town,Bdrs,median_ownership_per_bed,own_listings,ZIP_CODE
 "Wrentham, MA",3,1330.14,27,02093
 "Wrentham, MA",4,1439.17,23,02093
 "Wrentham, MA",5,1628.88,4,02093
-"Yarmouth, MA",3,1416.27,110,02673
-"Yarmouth, MA",4,1164.42,34,02673
+"Yarmouth, MA",3,1415.18,111,02673
+"Yarmouth, MA",4,1164.42,36,02673
