@@ -20,6 +20,8 @@ DATASET_NAMES = [
     "town_med",
 ]
 
+CURRENCY_COLUMN_MARKERS = ["rent", "ownership", "monthly", "median", "difference", "gap", "price", "cost"]
+
 
 @st.cache_data(show_spinner=False)
 def load_any_dataset(base_name: str) -> pd.DataFrame | None:
@@ -355,6 +357,13 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
         )
         return
 
+    tooltip_col = value_col
+    value_col_lower = value_col.lower()
+    is_currency_col = any(marker in value_col_lower for marker in CURRENCY_COLUMN_MARKERS)
+    if is_currency_col and pd.api.types.is_numeric_dtype(map_df[value_col]):
+        tooltip_col = "tooltip_value"
+        map_df[tooltip_col] = map_df[value_col].map(lambda v: f"${v:,.2f}" if pd.notna(v) else "")
+
     layer = pdk.Layer(
         "ScatterplotLayer",
         map_df,
@@ -377,7 +386,7 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
     )
 
     tooltip = {
-        "html": f"<b>{{{label_col}}}</b><br/>{value_col}: {{{value_col}}}",
+        "html": f"<b>{{{label_col}}}</b><br/>{value_col}: {{{tooltip_col}}}",
         "style": {"backgroundColor": "#111827", "color": "white"},
     }
     st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip=tooltip))
@@ -397,11 +406,32 @@ def show_table(df: pd.DataFrame, *, sort_by: str | None = None, ascending: bool 
 
     out = out.reset_index(drop=True)
 
+    column_config = {}
+    for col in out.columns:
+        col_lower = col.lower()
+        is_currency_col = any(marker in col_lower for marker in CURRENCY_COLUMN_MARKERS)
+        if is_currency_col and pd.api.types.is_numeric_dtype(out[col]):
+            column_config[col] = st.column_config.NumberColumn(format="$%.2f")
+
     # hide_index работает в новых версиях streamlit
     try:
-        st.dataframe(out, use_container_width=True, height=height, hide_index=True)
+        st.dataframe(
+            out,
+            use_container_width=True,
+            height=height,
+            hide_index=True,
+            column_config=column_config,
+        )
     except TypeError:
-        st.dataframe(out, use_container_width=True, height=height)
+        try:
+            st.dataframe(
+                out,
+                use_container_width=True,
+                height=height,
+                column_config=column_config,
+            )
+        except TypeError:
+            st.dataframe(out, use_container_width=True, height=height)
 
 
 def rename_if_present(df: pd.DataFrame, rename_pairs: list[tuple[str | None, str]]) -> pd.DataFrame:
