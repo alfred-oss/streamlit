@@ -578,8 +578,8 @@ else:
 """
     )
 
-# --- Section 2: ownership map ---
-st.header("2) Ownership map + address table")
+# --- Section 2: ownership table ---
+st.header("2) Ownership table")
 own_df = loaded.get("df")
 if own_df is not None:
     own_df = add_coords(own_df, town_coord_ref)
@@ -610,31 +610,17 @@ if own_df is not None:
             own_df = own_df[own_df[own_bdrs_col].isin(selected_bdrs)]
 
     if own_val_col and own_addr_col and own_town_col:
-        own_df["map_label"] = (
-            own_df[own_addr_col].fillna("").astype(str).str.strip()
-            + ", "
-            + own_df[own_town_col].fillna("").astype(str).str.strip()
-            + ", USA"
+        cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_val_col] if c]
+        table_df = own_df[cols].copy()
+        table_df = rename_if_present(
+            table_df,
+            [
+                (own_addr_col, "Address"),
+                (own_val_col, "Monthly Ownership"),
+            ],
         )
-        c1, c2 = st.columns([2, 1])
-        with c1:
-            total_points = len(own_df)
-            mapped_points = int(own_df[["lat", "lon"]].notna().all(axis=1).sum())
-            st.caption(f"Mapped towns: {mapped_points}/{total_points}")
-            make_map(own_df, own_val_col, "map_label", "Ownership per bed (address-level)", marker_color=[59, 130, 246, 170])
-        with c2:
-            st.subheader("Ownership table")
-            cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_val_col] if c]
-            table_df = own_df[cols].copy()
-            table_df = rename_if_present(
-                table_df,
-                [
-                    (own_addr_col, "Address"),
-                    (own_val_col, "Monthly Ownership"),
-                ],
-            )
-            sort_col = "Monthly Ownership" if "Monthly Ownership" in table_df.columns else own_val_col
-            show_table(table_df, sort_by=sort_col, ascending=False, height=500)
+        sort_col = "Monthly Ownership" if "Monthly Ownership" in table_df.columns else own_val_col
+        show_table(table_df, sort_by=sort_col, ascending=False, height=500)
     else:
         st.info("df must include address and monthly ownership per bed columns.")
 
