@@ -504,7 +504,12 @@ if own_df is not None:
     if own_town_col:
         town_values = sorted(own_df[own_town_col].dropna().astype(str).str.strip().unique().tolist())
         with filter_col1:
-            selected_towns = st.multiselect("Select town:", town_values, default=[])
+            selected_towns = st.multiselect(
+                "Select town:",
+                town_values,
+                default=[],
+                placeholder="Type first letter(s) to search towns",
+            )
         if selected_towns:
             own_df = own_df[own_df[own_town_col].fillna("").astype(str).str.strip().isin(selected_towns)]
 
