@@ -501,7 +501,14 @@ else:
     with c2:
         st.subheader("Town table")
         table_cols = [town_col]
-        for col in ["Bdrs", "median_ownership_per_bed", "median_rent_per_bed", "gap"]:
+        for col in [
+            "Bdrs",
+            "median_ownership_per_bed",
+            "listings",
+            "median_rent_per_bed",
+            "rental_listings",
+            "gap",
+        ]:
             real_col = choose_column(main_df, [col])
             if real_col:
                 table_cols.append(real_col)
@@ -510,10 +517,28 @@ else:
             table_df,
             [
                 (choose_column(table_df, ["median_ownership_per_bed"]), "Median Ownership"),
+                (choose_column(table_df, ["listings"]), "Number of Ownership Listings"),
                 (choose_column(table_df, ["median_rent_per_bed"]), "Median Rent"),
+                (choose_column(table_df, ["rental_listings"]), "Number of Rental Listings"),
                 (choose_column(table_df, ["gap"]), "Difference"),
             ],
         )
+        ordered_cols = [
+            c
+            for c in [
+                town_col,
+                "Bdrs",
+                "Median Ownership",
+                "Number of Ownership Listings",
+                "Median Rent",
+                "Number of Rental Listings",
+                "Difference",
+            ]
+            if c in table_df.columns
+        ]
+        if ordered_cols:
+            table_df = table_df[ordered_cols]
+
         sort_col = "Difference" if "Difference" in table_df.columns else gap_col
         show_table(table_df, sort_by=sort_col, ascending=False, height=500)
 
