@@ -20,6 +20,8 @@ DATASET_NAMES = [
     "town_med",
 ]
 
+CURRENCY_COLUMN_MARKERS = ["rent", "ownership", "monthly", "median", "difference", "gap", "price", "cost"]
+
 
 @st.cache_data(show_spinner=False)
 def load_any_dataset(base_name: str) -> pd.DataFrame | None:
@@ -355,6 +357,13 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
         )
         return
 
+    tooltip_col = value_col
+    value_col_lower = value_col.lower()
+    is_currency_col = any(marker in value_col_lower for marker in CURRENCY_COLUMN_MARKERS)
+    if is_currency_col and pd.api.types.is_numeric_dtype(map_df[value_col]):
+        tooltip_col = "tooltip_value"
+        map_df[tooltip_col] = map_df[value_col].map(lambda v: f"${v:,.2f}" if pd.notna(v) else "")
+
     layer = pdk.Layer(
         "ScatterplotLayer",
         map_df,
@@ -377,7 +386,7 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
     )
 
     tooltip = {
-        "html": f"<b>{{{label_col}}}</b><br/>{value_col}: {{{value_col}}}",
+        "html": f"<b>{{{label_col}}}</b><br/>{value_col}: {{{tooltip_col}}}",
         "style": {"backgroundColor": "#111827", "color": "white"},
     }
     st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip=tooltip))
@@ -397,11 +406,59 @@ def show_table(df: pd.DataFrame, *, sort_by: str | None = None, ascending: bool 
 
     out = out.reset_index(drop=True)
 
+    column_config = {}
+    for col in out.columns:
+        col_lower = col.lower()
+        is_listing_col = "listing" in col_lower
+        is_currency_col = any(marker in col_lower for marker in CURRENCY_COLUMN_MARKERS)
+
+        if not pd.api.types.is_numeric_dtype(out[col]):
+            continue
+
+        if is_listing_col:
+            column_config[col] = st.column_config.NumberColumn(format="%d", width="small")
+            continue
+
+        if is_currency_col:
+            column_config[col] = st.column_config.NumberColumn(format="$%.2f", width="small")
+            continue
+
+        column_config[col] = st.column_config.NumberColumn(width="small")
+
+    if "Number of Ownership Listings" in out.columns:
+        column_config["Number of Ownership Listings"] = st.column_config.NumberColumn(
+            "Ownership Listings",
+            help="Number of Ownership Listings",
+            format="%d",
+            width="small",
+        )
+    if "Number of Rental Listings" in out.columns:
+        column_config["Number of Rental Listings"] = st.column_config.NumberColumn(
+            "Rental Listings",
+            help="Number of Rental Listings",
+            format="%d",
+            width="small",
+        )
+
     # hide_index работает в новых версиях streamlit
     try:
-        st.dataframe(out, use_container_width=True, height=height, hide_index=True)
+        st.dataframe(
+            out,
+            use_container_width=True,
+            height=height,
+            hide_index=True,
+            column_config=column_config,
+        )
     except TypeError:
-        st.dataframe(out, use_container_width=True, height=height)
+        try:
+            st.dataframe(
+                out,
+                use_container_width=True,
+                height=height,
+                column_config=column_config,
+            )
+        except TypeError:
+            st.dataframe(out, use_container_width=True, height=height)
 
 
 def rename_if_present(df: pd.DataFrame, rename_pairs: list[tuple[str | None, str]]) -> pd.DataFrame:
@@ -463,7 +520,14 @@ else:
     with c2:
         st.subheader("Town table")
         table_cols = [town_col]
-        for col in ["Bdrs", "median_ownership_per_bed", "median_rent_per_bed", "gap"]:
+        for col in [
+            "Bdrs",
+            "median_ownership_per_bed",
+            "listings",
+            "median_rent_per_bed",
+            "rental_listings",
+            "gap",
+        ]:
             real_col = choose_column(main_df, [col])
             if real_col:
                 table_cols.append(real_col)
@@ -472,10 +536,28 @@ else:
             table_df,
             [
                 (choose_column(table_df, ["median_ownership_per_bed"]), "Median Ownership"),
+                (choose_column(table_df, ["listings"]), "Number of Ownership Listings"),
                 (choose_column(table_df, ["median_rent_per_bed"]), "Median Rent"),
+                (choose_column(table_df, ["rental_listings"]), "Number of Rental Listings"),
                 (choose_column(table_df, ["gap"]), "Difference"),
             ],
         )
+        ordered_cols = [
+            c
+            for c in [
+                town_col,
+                "Bdrs",
+                "Median Ownership",
+                "Number of Ownership Listings",
+                "Median Rent",
+                "Number of Rental Listings",
+                "Difference",
+            ]
+            if c in table_df.columns
+        ]
+        if ordered_cols:
+            table_df = table_df[ordered_cols]
+
         sort_col = "Difference" if "Difference" in table_df.columns else gap_col
         show_table(table_df, sort_by=sort_col, ascending=False, height=500)
 
@@ -489,8 +571,8 @@ else:
 """
     )
 
-# --- Section 2: ownership map ---
-st.header("2) Ownership map + address table")
+# --- Section 2: ownership table ---
+st.header("2) Ownership table")
 own_df = loaded.get("df")
 if own_df is not None:
     own_df = add_coords(own_df, town_coord_ref)
@@ -498,8 +580,9 @@ if own_df is not None:
     own_addr_col = choose_column(own_df, ["Address_norm", "FullAddress", "address", "Address"])
     own_town_col = choose_column(own_df, ["Town"])
     own_bdrs_col = choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"])
+    own_price_col = choose_column(own_df, ["Sale_Price", "sale_price"])
 
-    filter_col1, filter_col2 = st.columns(2)
+    filter_col1, filter_col2, filter_col3 = st.columns(3)
 
     if own_town_col:
         town_values = sorted(own_df[own_town_col].dropna().astype(str).str.strip().unique().tolist())
@@ -520,32 +603,44 @@ if own_df is not None:
         if selected_bdrs:
             own_df = own_df[own_df[own_bdrs_col].isin(selected_bdrs)]
 
+    if own_price_col:
+        own_df[own_price_col] = pd.to_numeric(own_df[own_price_col], errors="coerce")
+        price_min = own_df[own_price_col].min()
+        price_max = own_df[own_price_col].max()
+        if pd.notna(price_min) and pd.notna(price_max):
+            with filter_col3:
+                st.markdown("Choose Your Price")
+                selected_min_price = st.number_input(
+                    "Min price",
+                    min_value=int(price_min),
+                    max_value=int(price_max),
+                    value=int(price_min),
+                    step=1000,
+                )
+                selected_max_price = st.number_input(
+                    "Max price",
+                    min_value=int(price_min),
+                    max_value=int(price_max),
+                    value=int(price_max),
+                    step=1000,
+                )
+            if selected_min_price > selected_max_price:
+                selected_min_price, selected_max_price = selected_max_price, selected_min_price
+            own_df = own_df[own_df[own_price_col].between(selected_min_price, selected_max_price, inclusive="both")]
+
     if own_val_col and own_addr_col and own_town_col:
-        own_df["map_label"] = (
-            own_df[own_addr_col].fillna("").astype(str).str.strip()
-            + ", "
-            + own_df[own_town_col].fillna("").astype(str).str.strip()
-            + ", USA"
+        cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_price_col, own_val_col] if c]
+        table_df = own_df[cols].copy()
+        table_df = rename_if_present(
+            table_df,
+            [
+                (own_addr_col, "Address"),
+                (own_price_col, "Sale Price"),
+                (own_val_col, "Monthly Ownership"),
+            ],
         )
-        c1, c2 = st.columns([2, 1])
-        with c1:
-            total_points = len(own_df)
-            mapped_points = int(own_df[["lat", "lon"]].notna().all(axis=1).sum())
-            st.caption(f"Mapped towns: {mapped_points}/{total_points}")
-            make_map(own_df, own_val_col, "map_label", "Ownership per bed (address-level)", marker_color=[59, 130, 246, 170])
-        with c2:
-            st.subheader("Ownership table")
-            cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_val_col] if c]
-            table_df = own_df[cols].copy()
-            table_df = rename_if_present(
-                table_df,
-                [
-                    (own_addr_col, "Address"),
-                    (own_val_col, "Monthly Ownership"),
-                ],
-            )
-            sort_col = "Monthly Ownership" if "Monthly Ownership" in table_df.columns else own_val_col
-            show_table(table_df, sort_by=sort_col, ascending=False, height=500)
+        sort_col = "Monthly Ownership" if "Monthly Ownership" in table_df.columns else own_val_col
+        show_table(table_df, sort_by=sort_col, ascending=False, height=500)
     else:
         st.info("df must include address and monthly ownership per bed columns.")
 
