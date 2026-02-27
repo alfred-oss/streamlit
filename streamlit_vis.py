@@ -413,13 +413,34 @@ def show_table(df: pd.DataFrame, *, sort_by: str | None = None, ascending: bool 
 
     out = out.reset_index(drop=True)
 
-    currency_markers = ["rent", "ownership", "monthly", "median", "difference", "gap", "price", "cost"]
-    column_config = {}
+    column_config = {col: st.column_config.Column(width="large") for col in out.columns}
     for col in out.columns:
         col_lower = col.lower()
-        is_currency_col = any(marker in col_lower for marker in currency_markers)
-        if is_currency_col and pd.api.types.is_numeric_dtype(out[col]):
-            column_config[col] = st.column_config.NumberColumn(format="$%.2f")
+        is_listing_col = "listing" in col_lower
+        is_currency_col = any(marker in col_lower for marker in CURRENCY_COLUMN_MARKERS)
+
+        if not pd.api.types.is_numeric_dtype(out[col]):
+            continue
+
+        if is_listing_col:
+            column_config[col] = st.column_config.NumberColumn(width="large", format="%d")
+            continue
+
+        if is_currency_col:
+            column_config[col] = st.column_config.NumberColumn(width="large", format="$%.2f")
+
+    if "Number of Ownership Listings" in out.columns:
+        column_config["Number of Ownership Listings"] = st.column_config.NumberColumn(
+            "Number of\nOwnership Listings",
+            width="large",
+            format="%d",
+        )
+    if "Number of Rental Listings" in out.columns:
+        column_config["Number of Rental Listings"] = st.column_config.NumberColumn(
+            "Number of\nRental Listings",
+            width="large",
+            format="%d",
+        )
 
     # hide_index работает в новых версиях streamlit
     try:
