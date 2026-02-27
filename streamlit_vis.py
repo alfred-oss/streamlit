@@ -340,8 +340,6 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
             return [220, 38, 38, 180]
 
     map_df["color"] = map_df[value_col].apply(color_scale)
-    radius_base = 5000 if map_df[label_col].nunique() < 200 else 2500
-
     st.subheader(title)
     if pdk is None:
         st.warning(
@@ -405,6 +403,14 @@ def show_table(df: pd.DataFrame, *, sort_by: str | None = None, ascending: bool 
     except TypeError:
         st.dataframe(out, use_container_width=True, height=height)
 
+
+def rename_if_present(df: pd.DataFrame, rename_pairs: list[tuple[str | None, str]]) -> pd.DataFrame:
+    rename_map: dict[str, str] = {}
+    for source, target in rename_pairs:
+        if source and source in df.columns:
+            rename_map[source] = target
+    return df.rename(columns=rename_map)
+
 st.title("🏠 Buy vs Rent Interactive Explorer")
 loaded = load_all()
 
@@ -415,7 +421,14 @@ if not loaded:
     )
     st.stop()
 
-st.caption("Main metric: gap = median_rent_per_bed - median_ownership_per_bed. Positive gap means buying is cheaper than renting per bedroom.")
+st.markdown(
+    """
+<p style="color: #FFFFFF; font-size: 1.05rem; margin-bottom: 0.5rem;">
+Main metric: Difference = Median Rent - Median Ownership. Positive gap means buying is cheaper than renting per bedroom.
+</p>
+""",
+    unsafe_allow_html=True,
+)
 
 ownership_base = loaded.get("df")
 coords_seed_df = ownership_base if ownership_base is not None else loaded.get("merged")
@@ -455,13 +468,26 @@ else:
             if real_col:
                 table_cols.append(real_col)
         table_df = main_df[table_cols].copy()
-        table_df = table_df.rename(columns={
-            choose_column(table_df, ["median_ownership_per_bed"]) or "": "Median Ownership",
-            choose_column(table_df, ["median_rent_per_bed"]) or "": "Median Rent",
-            choose_column(table_df, ["gap"]) or "": "Difference",
-        })
+        table_df = rename_if_present(
+            table_df,
+            [
+                (choose_column(table_df, ["median_ownership_per_bed"]), "Median Ownership"),
+                (choose_column(table_df, ["median_rent_per_bed"]), "Median Rent"),
+                (choose_column(table_df, ["gap"]), "Difference"),
+            ],
+        )
         sort_col = "Difference" if "Difference" in table_df.columns else gap_col
         show_table(table_df, sort_by=sort_col, ascending=False, height=500)
+
+    st.markdown(
+        """
+**Heatmap color logic (Difference):**
+- Green: gap > 0
+- Light green: gap from -200 to 0
+- Orange: gap from -400 to -200
+- Red: gap < -400
+"""
+    )
 
 # --- Section 2: ownership map ---
 st.header("2) Ownership map + address table")
@@ -472,6 +498,22 @@ if own_df is not None:
     own_addr_col = choose_column(own_df, ["Address_norm", "FullAddress", "address", "Address"])
     own_town_col = choose_column(own_df, ["Town"])
     own_bdrs_col = choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"])
+
+    filter_col1, filter_col2 = st.columns(2)
+
+    if own_town_col:
+        town_values = sorted(own_df[own_town_col].dropna().astype(str).str.strip().unique().tolist())
+        with filter_col1:
+            selected_towns = st.multiselect("Select town:", town_values, default=[])
+        if selected_towns:
+            own_df = own_df[own_df[own_town_col].fillna("").astype(str).str.strip().isin(selected_towns)]
+
+    if own_bdrs_col:
+        bdrs_values = sorted(own_df[own_bdrs_col].dropna().unique().tolist())
+        with filter_col2:
+            selected_bdrs = st.multiselect("Select number of bedrooms:", bdrs_values, default=[])
+        if selected_bdrs:
+            own_df = own_df[own_df[own_bdrs_col].isin(selected_bdrs)]
 
     if own_val_col and own_addr_col and own_town_col:
         own_df["map_label"] = (
@@ -490,23 +532,16 @@ if own_df is not None:
             st.subheader("Ownership table")
             cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_val_col] if c]
             table_df = own_df[cols].copy()
-            table_df = table_df.rename(columns={
-                own_addr_col: "Address",
-                own_val_col: "Monthly Ownership",
-            })
+            table_df = rename_if_present(
+                table_df,
+                [
+                    (own_addr_col, "Address"),
+                    (own_val_col, "Monthly Ownership"),
+                ],
+            )
             sort_col = "Monthly Ownership" if "Monthly Ownership" in table_df.columns else own_val_col
             show_table(table_df, sort_by=sort_col, ascending=False, height=500)
     else:
         st.info("df must include address and monthly ownership per bed columns.")
 
 st.divider()
-st.markdown(
-    """
-**Heatmap color logic (gap):**
-- Green: gap > 0
-- Light green: gap from -200 to 0
-- Orange: gap from -400 to -200
-- Red: gap < -400
-"""
-)
-
