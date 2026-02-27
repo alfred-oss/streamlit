@@ -423,22 +423,22 @@ def show_table(df: pd.DataFrame, *, sort_by: str | None = None, ascending: bool 
             continue
 
         if is_listing_col:
-            column_config[col] = st.column_config.NumberColumn(width="large", format="%d")
+            column_config[col] = st.column_config.NumberColumn(format="%d")
             continue
 
         if is_currency_col:
-            column_config[col] = st.column_config.NumberColumn(width="large", format="$%.2f")
+            column_config[col] = st.column_config.NumberColumn(format="$%.2f")
 
     if "Number of Ownership Listings" in out.columns:
         column_config["Number of Ownership Listings"] = st.column_config.NumberColumn(
-            "Number of\nOwnership Listings",
-            width="large",
+            "Ownership Listings",
+            help="Number of Ownership Listings",
             format="%d",
         )
     if "Number of Rental Listings" in out.columns:
         column_config["Number of Rental Listings"] = st.column_config.NumberColumn(
-            "Number of\nRental Listings",
-            width="large",
+            "Rental Listings",
+            help="Number of Rental Listings",
             format="%d",
         )
 
