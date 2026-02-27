@@ -499,15 +499,19 @@ if own_df is not None:
     own_town_col = choose_column(own_df, ["Town"])
     own_bdrs_col = choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"])
 
+    filter_col1, filter_col2 = st.columns(2)
+
     if own_town_col:
         town_values = sorted(own_df[own_town_col].dropna().astype(str).str.strip().unique().tolist())
-        selected_towns = st.multiselect("Ownership town filter", town_values, default=[])
+        with filter_col1:
+            selected_towns = st.multiselect("Select town:", town_values, default=[])
         if selected_towns:
             own_df = own_df[own_df[own_town_col].fillna("").astype(str).str.strip().isin(selected_towns)]
 
     if own_bdrs_col:
         bdrs_values = sorted(own_df[own_bdrs_col].dropna().unique().tolist())
-        selected_bdrs = st.multiselect("Ownership bedroom filter", bdrs_values, default=[])
+        with filter_col2:
+            selected_bdrs = st.multiselect("Select number of bedrooms:", bdrs_values, default=[])
         if selected_bdrs:
             own_df = own_df[own_df[own_bdrs_col].isin(selected_bdrs)]
 
