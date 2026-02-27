@@ -385,6 +385,13 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
         pitch=0,
     )
 
+    tooltip_col = value_col
+    value_col_lower = value_col.lower()
+    is_currency_col = any(marker in value_col_lower for marker in CURRENCY_COLUMN_MARKERS)
+    if is_currency_col and pd.api.types.is_numeric_dtype(map_df[value_col]):
+        tooltip_col = "tooltip_value"
+        map_df[tooltip_col] = map_df[value_col].map(lambda v: f"${v:,.2f}" if pd.notna(v) else "")
+
     tooltip = {
         "html": f"<b>{{{label_col}}}</b><br/>{value_col}: {{{tooltip_col}}}",
         "style": {"backgroundColor": "#111827", "color": "white"},
