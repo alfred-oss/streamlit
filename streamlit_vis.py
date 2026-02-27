@@ -589,7 +589,16 @@ if own_df is not None:
     own_bdrs_col = choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"])
     own_price_col = choose_column(own_df, ["Sale_Price", "sale_price"])
 
-    filter_col1, filter_col2, filter_col3 = st.columns(3)
+    filter_col1, filter_col2, filter_col3, filter_col4 = st.columns([1, 1, 1, 0.35])
+
+    with filter_col4:
+        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
+        if st.button("✕", key="ownership_clear_filters", help="Clear al filters", use_container_width=True):
+            st.session_state["ownership_towns"] = []
+            st.session_state["ownership_bdrs"] = []
+            st.session_state["ownership_min_price"] = ""
+            st.session_state["ownership_max_price"] = ""
+            st.rerun()
 
     if own_town_col:
         town_values = sorted(own_df[own_town_col].dropna().astype(str).str.strip().unique().tolist())
@@ -599,6 +608,7 @@ if own_df is not None:
                 town_values,
                 default=[],
                 placeholder="Type first letter(s) to search towns",
+                key="ownership_towns",
             )
         if selected_towns:
             own_df = own_df[own_df[own_town_col].fillna("").astype(str).str.strip().isin(selected_towns)]
@@ -606,7 +616,7 @@ if own_df is not None:
     if own_bdrs_col:
         bdrs_values = sorted(own_df[own_bdrs_col].dropna().unique().tolist())
         with filter_col2:
-            selected_bdrs = st.multiselect("Select number of bedrooms:", bdrs_values, default=[])
+            selected_bdrs = st.multiselect("Select number of bedrooms:", bdrs_values, default=[], key="ownership_bdrs")
         if selected_bdrs:
             own_df = own_df[own_df[own_bdrs_col].isin(selected_bdrs)]
 
