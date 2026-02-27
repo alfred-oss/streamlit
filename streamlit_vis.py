@@ -587,8 +587,9 @@ if own_df is not None:
     own_addr_col = choose_column(own_df, ["Address_norm", "FullAddress", "address", "Address"])
     own_town_col = choose_column(own_df, ["Town"])
     own_bdrs_col = choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"])
+    own_price_col = choose_column(own_df, ["Sale_Price", "sale_price"])
 
-    filter_col1, filter_col2 = st.columns(2)
+    filter_col1, filter_col2, filter_col3 = st.columns(3)
 
     if own_town_col:
         town_values = sorted(own_df[own_town_col].dropna().astype(str).str.strip().unique().tolist())
@@ -609,13 +610,39 @@ if own_df is not None:
         if selected_bdrs:
             own_df = own_df[own_df[own_bdrs_col].isin(selected_bdrs)]
 
+    if own_price_col:
+        own_df[own_price_col] = pd.to_numeric(own_df[own_price_col], errors="coerce")
+        price_min = own_df[own_price_col].min()
+        price_max = own_df[own_price_col].max()
+        if pd.notna(price_min) and pd.notna(price_max):
+            with filter_col3:
+                st.markdown("Choose Your Price")
+                selected_min_price = st.number_input(
+                    "Min price",
+                    min_value=int(price_min),
+                    max_value=int(price_max),
+                    value=int(price_min),
+                    step=1000,
+                )
+                selected_max_price = st.number_input(
+                    "Max price",
+                    min_value=int(price_min),
+                    max_value=int(price_max),
+                    value=int(price_max),
+                    step=1000,
+                )
+            if selected_min_price > selected_max_price:
+                selected_min_price, selected_max_price = selected_max_price, selected_min_price
+            own_df = own_df[own_df[own_price_col].between(selected_min_price, selected_max_price, inclusive="both")]
+
     if own_val_col and own_addr_col and own_town_col:
-        cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_val_col] if c]
+        cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_price_col, own_val_col] if c]
         table_df = own_df[cols].copy()
         table_df = rename_if_present(
             table_df,
             [
                 (own_addr_col, "Address"),
+                (own_price_col, "Sale Price"),
                 (own_val_col, "Monthly Ownership"),
             ],
         )
