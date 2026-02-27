@@ -20,6 +20,8 @@ DATASET_NAMES = [
     "town_med",
 ]
 
+CURRENCY_COLUMN_MARKERS = ["rent", "ownership", "monthly", "median", "difference", "gap", "price", "cost"]
+
 
 @st.cache_data(show_spinner=False)
 def load_any_dataset(base_name: str) -> pd.DataFrame | None:
@@ -355,6 +357,13 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
         )
         return
 
+    tooltip_col = value_col
+    value_col_lower = value_col.lower()
+    is_currency_col = any(marker in value_col_lower for marker in CURRENCY_COLUMN_MARKERS)
+    if is_currency_col and pd.api.types.is_numeric_dtype(map_df[value_col]):
+        tooltip_col = "tooltip_value"
+        map_df[tooltip_col] = map_df[value_col].map(lambda v: f"${v:,.2f}" if pd.notna(v) else "")
+
     layer = pdk.Layer(
         "ScatterplotLayer",
         map_df,
@@ -376,8 +385,15 @@ def make_map(df: pd.DataFrame, value_col: str, label_col: str, title: str, *, fi
         pitch=0,
     )
 
+    tooltip_col = value_col
+    value_col_lower = value_col.lower()
+    is_currency_col = any(marker in value_col_lower for marker in CURRENCY_COLUMN_MARKERS)
+    if is_currency_col and pd.api.types.is_numeric_dtype(map_df[value_col]):
+        tooltip_col = "tooltip_value"
+        map_df[tooltip_col] = map_df[value_col].map(lambda v: f"${v:,.2f}" if pd.notna(v) else "")
+
     tooltip = {
-        "html": f"<b>{{{label_col}}}</b><br/>{value_col}: {{{value_col}}}",
+        "html": f"<b>{{{label_col}}}</b><br/>{value_col}: {{{tooltip_col}}}",
         "style": {"backgroundColor": "#111827", "color": "white"},
     }
     st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip=tooltip))
@@ -397,11 +413,59 @@ def show_table(df: pd.DataFrame, *, sort_by: str | None = None, ascending: bool 
 
     out = out.reset_index(drop=True)
 
+    column_config = {}
+    for col in out.columns:
+        col_lower = col.lower()
+        is_listing_col = "listing" in col_lower
+        is_currency_col = any(marker in col_lower for marker in CURRENCY_COLUMN_MARKERS)
+
+        if not pd.api.types.is_numeric_dtype(out[col]):
+            continue
+
+        if is_listing_col:
+            column_config[col] = st.column_config.NumberColumn(format="%d", width="small")
+            continue
+
+        if is_currency_col:
+            column_config[col] = st.column_config.NumberColumn(format="$%.2f", width="small")
+            continue
+
+        column_config[col] = st.column_config.NumberColumn(width="small")
+
+    if "Number of Ownership Listings" in out.columns:
+        column_config["Number of Ownership Listings"] = st.column_config.NumberColumn(
+            "Ownership Listings",
+            help="Number of Ownership Listings",
+            format="%d",
+            width="small",
+        )
+    if "Number of Rental Listings" in out.columns:
+        column_config["Number of Rental Listings"] = st.column_config.NumberColumn(
+            "Rental Listings",
+            help="Number of Rental Listings",
+            format="%d",
+            width="small",
+        )
+
     # hide_index работает в новых версиях streamlit
     try:
-        st.dataframe(out, use_container_width=True, height=height, hide_index=True)
+        st.dataframe(
+            out,
+            use_container_width=True,
+            height=height,
+            hide_index=True,
+            column_config=column_config,
+        )
     except TypeError:
-        st.dataframe(out, use_container_width=True, height=height)
+        try:
+            st.dataframe(
+                out,
+                use_container_width=True,
+                height=height,
+                column_config=column_config,
+            )
+        except TypeError:
+            st.dataframe(out, use_container_width=True, height=height)
 
 
 def rename_if_present(df: pd.DataFrame, rename_pairs: list[tuple[str | None, str]]) -> pd.DataFrame:
@@ -463,7 +527,14 @@ else:
     with c2:
         st.subheader("Town table")
         table_cols = [town_col]
-        for col in ["Bdrs", "median_ownership_per_bed", "median_rent_per_bed", "gap"]:
+        for col in [
+            "Bdrs",
+            "median_ownership_per_bed",
+            "listings",
+            "median_rent_per_bed",
+            "rental_listings",
+            "gap",
+        ]:
             real_col = choose_column(main_df, [col])
             if real_col:
                 table_cols.append(real_col)
@@ -472,10 +543,28 @@ else:
             table_df,
             [
                 (choose_column(table_df, ["median_ownership_per_bed"]), "Median Ownership"),
+                (choose_column(table_df, ["listings"]), "Number of Ownership Listings"),
                 (choose_column(table_df, ["median_rent_per_bed"]), "Median Rent"),
+                (choose_column(table_df, ["rental_listings"]), "Number of Rental Listings"),
                 (choose_column(table_df, ["gap"]), "Difference"),
             ],
         )
+        ordered_cols = [
+            c
+            for c in [
+                town_col,
+                "Bdrs",
+                "Median Ownership",
+                "Number of Ownership Listings",
+                "Median Rent",
+                "Number of Rental Listings",
+                "Difference",
+            ]
+            if c in table_df.columns
+        ]
+        if ordered_cols:
+            table_df = table_df[ordered_cols]
+
         sort_col = "Difference" if "Difference" in table_df.columns else gap_col
         show_table(table_df, sort_by=sort_col, ascending=False, height=500)
 
@@ -504,7 +593,12 @@ if own_df is not None:
     if own_town_col:
         town_values = sorted(own_df[own_town_col].dropna().astype(str).str.strip().unique().tolist())
         with filter_col1:
-            selected_towns = st.multiselect("Select town:", town_values, default=[])
+            selected_towns = st.multiselect(
+                "Select town:",
+                town_values,
+                default=[],
+                placeholder="Type first letter(s) to search towns",
+            )
         if selected_towns:
             own_df = own_df[own_df[own_town_col].fillna("").astype(str).str.strip().isin(selected_towns)]
 
