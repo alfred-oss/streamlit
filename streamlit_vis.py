@@ -613,7 +613,7 @@ if own_df is not None:
     if own_price_col:
         own_df[own_price_col] = pd.to_numeric(own_df[own_price_col], errors="coerce")
         with filter_col3:
-            st.markdown("Choose Your Price")
+            st.markdown('<p style="margin: 0 0 0.25rem 0; font-size: 1rem;">Choose Your Price:</p>', unsafe_allow_html=True)
             min_col, max_col = st.columns(2)
             with min_col:
                 min_price_text = st.text_input("Min price", placeholder="min price", key="ownership_min_price", label_visibility="collapsed")
