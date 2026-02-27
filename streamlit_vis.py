@@ -612,28 +612,26 @@ if own_df is not None:
 
     if own_price_col:
         own_df[own_price_col] = pd.to_numeric(own_df[own_price_col], errors="coerce")
-        price_min = own_df[own_price_col].min()
-        price_max = own_df[own_price_col].max()
-        if pd.notna(price_min) and pd.notna(price_max):
-            with filter_col3:
-                st.markdown("Choose Your Price")
-                selected_min_price = st.number_input(
-                    "Min price",
-                    min_value=int(price_min),
-                    max_value=int(price_max),
-                    value=int(price_min),
-                    step=1000,
-                )
-                selected_max_price = st.number_input(
-                    "Max price",
-                    min_value=int(price_min),
-                    max_value=int(price_max),
-                    value=int(price_max),
-                    step=1000,
-                )
-            if selected_min_price > selected_max_price:
-                selected_min_price, selected_max_price = selected_max_price, selected_min_price
-            own_df = own_df[own_df[own_price_col].between(selected_min_price, selected_max_price, inclusive="both")]
+        with filter_col3:
+            st.markdown("Choose Your Price")
+            min_col, max_col = st.columns(2)
+            with min_col:
+                min_price_text = st.text_input("Min price", placeholder="min price", key="ownership_min_price", label_visibility="collapsed")
+            with max_col:
+                max_price_text = st.text_input("Max price", placeholder="max price", key="ownership_max_price", label_visibility="collapsed")
+
+        min_price = pd.to_numeric(min_price_text, errors="coerce") if min_price_text else np.nan
+        max_price = pd.to_numeric(max_price_text, errors="coerce") if max_price_text else np.nan
+
+        if min_price_text and pd.isna(min_price):
+            st.warning("Min price must be a number")
+        if max_price_text and pd.isna(max_price):
+            st.warning("Max price must be a number")
+
+        if pd.notna(min_price):
+            own_df = own_df[own_df[own_price_col] >= float(min_price)]
+        if pd.notna(max_price):
+            own_df = own_df[own_df[own_price_col] <= float(max_price)]
 
     if own_val_col and own_addr_col and own_town_col:
         cols = [c for c in [own_addr_col, own_town_col, own_bdrs_col, own_price_col, own_val_col] if c]
