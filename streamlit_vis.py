@@ -589,11 +589,11 @@ if own_df is not None:
     own_bdrs_col = choose_column(own_df, ["Bdrs", "Beds", "Bedrooms"])
     own_price_col = choose_column(own_df, ["Sale_Price", "sale_price"])
 
-    filter_col1, filter_col2, filter_col3, filter_col4 = st.columns([1, 1, 1, 0.35])
+    filter_col1, filter_col2, filter_col3, filter_col4 = st.columns([1, 1, 1, 0.12])
 
     with filter_col4:
-        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
-        if st.button("✕", key="ownership_clear_filters", help="Clear al filters", use_container_width=True):
+        st.markdown("<p style='margin: 0 0 0.25rem 0; font-size: 0.875rem; font-weight: 400;'>&nbsp;</p>", unsafe_allow_html=True)
+        if st.button("✕", key="ownership_clear_filters", help="Clear all filters"):
             st.session_state["ownership_towns"] = []
             st.session_state["ownership_bdrs"] = []
             st.session_state["ownership_min_price"] = ""
